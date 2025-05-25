@@ -34,7 +34,7 @@ func TestRepository_Save(t *testing.T) {
 				m.On("PutItem", mock.AnythingOfType("backgroundCtx"), input, mock.Anything).Return(&dynamodb.PutItemOutput{}, errors.New("dynamodb.PutItem error"))
 			},
 			want:    Book{},
-			wantErr: fmt.Errorf("failed to save book: %w", errors.New("dynamodb.PutItem error")),
+			wantErr: fmt.Errorf("%w. failed to save book: %w", ErrDynamodb, errors.New("dynamodb.PutItem error")),
 		},
 		{
 			name: "when successfully saved book",
@@ -83,7 +83,7 @@ func TestRepository_GetById(t *testing.T) {
 				input := &dynamodb.GetItemInput{TableName: aws.String("some-table-name"), Key: map[string]types.AttributeValue{"Id": &types.AttributeValueMemberS{Value: "a-random-book-id"}}}
 				m.On("GetItem", mock.AnythingOfType("backgroundCtx"), input, mock.Anything).Return(&dynamodb.GetItemOutput{}, assert.AnError)
 			},
-			wantErr: fmt.Errorf("failed to fetch book, id: %s, err: %w", "a-random-book-id", assert.AnError),
+			wantErr: fmt.Errorf("%w. failed to fetch book, id: %s, err: %w", ErrDynamodb, "a-random-book-id", assert.AnError),
 		},
 		{
 			name: "when book not found",
@@ -91,7 +91,7 @@ func TestRepository_GetById(t *testing.T) {
 				input := &dynamodb.GetItemInput{TableName: aws.String("some-table-name"), Key: map[string]types.AttributeValue{"Id": &types.AttributeValueMemberS{Value: "a-random-book-id"}}}
 				m.On("GetItem", mock.AnythingOfType("backgroundCtx"), input, mock.Anything).Return(&dynamodb.GetItemOutput{}, nil)
 			},
-			wantErr: fmt.Errorf("book not found id: %s", "a-random-book-id"),
+			wantErr: fmt.Errorf("%w. book id: %s", ErrNotFound, "a-random-book-id"),
 		},
 		{
 			name: "when failed to marshal output",
@@ -103,7 +103,7 @@ func TestRepository_GetById(t *testing.T) {
 				}}
 				m.On("GetItem", mock.AnythingOfType("backgroundCtx"), input, mock.Anything).Return(output, nil)
 			},
-			wantErr: fmt.Errorf("failed to unmarshal book: %w", errors.New("unmarshal failed, cannot unmarshal map into Go value type string")),
+			wantErr: fmt.Errorf("%w. failed to unmarshal book: %w", ErrDynamodb, errors.New("unmarshal failed, cannot unmarshal map into Go value type string")),
 		},
 		{
 			name: "when success get book",

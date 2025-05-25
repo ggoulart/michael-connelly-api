@@ -2,6 +2,7 @@ package characters
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -10,6 +11,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/google/uuid"
 )
+
+var ErrDynamodb = errors.New("dynamodb error")
+var ErrNotFound = errors.New("not found")
 
 type DynamoDBClient interface {
 	PutItem(ctx context.Context, params *dynamodb.PutItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.PutItemOutput, error)
@@ -31,7 +35,7 @@ func (r *Repository) Save(ctx context.Context, character Character) (Character, 
 
 	item, err := attributevalue.MarshalMap(character)
 	if err != nil {
-		return Character{}, fmt.Errorf("failed to marshal character: %w", err)
+		return Character{}, fmt.Errorf("%w. failed to marshal character: %w", ErrDynamodb, err)
 	}
 
 	_, err = r.dynamoDB.PutItem(ctx, &dynamodb.PutItemInput{
@@ -39,7 +43,7 @@ func (r *Repository) Save(ctx context.Context, character Character) (Character, 
 		Item:      item,
 	})
 	if err != nil {
-		return Character{}, fmt.Errorf("failed to save character: %w", err)
+		return Character{}, fmt.Errorf("%w. failed to save character: %w", ErrDynamodb, err)
 	}
 
 	return character, err
@@ -51,16 +55,16 @@ func (r *Repository) GetById(ctx context.Context, characterID string) (Character
 		Key:       map[string]types.AttributeValue{"Id": &types.AttributeValueMemberS{Value: characterID}},
 	})
 	if err != nil {
-		return Character{}, fmt.Errorf("failed to fetch character, id: %s, err: %w", characterID, err)
+		return Character{}, fmt.Errorf("%w. failed to fetch character, id: %s, err: %w", ErrDynamodb, characterID, err)
 	}
 	if output.Item == nil {
-		return Character{}, fmt.Errorf("character not found id: %s", characterID)
+		return Character{}, fmt.Errorf("%w. character id: %s", ErrNotFound, characterID)
 	}
 
 	var character Character
 	err = attributevalue.UnmarshalMap(output.Item, &character)
 	if err != nil {
-		return Character{}, fmt.Errorf("failed to unmarshal character: %w", err)
+		return Character{}, fmt.Errorf("%w. failed to unmarshal character: %w", ErrDynamodb, err)
 	}
 	return character, nil
 }

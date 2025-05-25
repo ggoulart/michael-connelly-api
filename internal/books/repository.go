@@ -2,6 +2,7 @@ package books
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -10,6 +11,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/google/uuid"
 )
+
+var ErrDynamodb = errors.New("dynamodb error")
+var ErrNotFound = errors.New("not found")
 
 type DynamoDBClient interface {
 	PutItem(ctx context.Context, params *dynamodb.PutItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.PutItemOutput, error)
@@ -31,7 +35,7 @@ func (r *Repository) Save(ctx context.Context, book Book) (Book, error) {
 
 	item, err := attributevalue.MarshalMap(book)
 	if err != nil {
-		return Book{}, fmt.Errorf("failed to marshal book: %w", err)
+		return Book{}, fmt.Errorf("%w. failed to marshal book: %w", ErrDynamodb, err)
 	}
 
 	_, err = r.dynamoDB.PutItem(ctx, &dynamodb.PutItemInput{
@@ -39,7 +43,7 @@ func (r *Repository) Save(ctx context.Context, book Book) (Book, error) {
 		Item:      item,
 	})
 	if err != nil {
-		return Book{}, fmt.Errorf("failed to save book: %w", err)
+		return Book{}, fmt.Errorf("%w. failed to save book: %w", ErrDynamodb, err)
 	}
 
 	return book, err
@@ -51,16 +55,16 @@ func (r *Repository) GetById(ctx context.Context, bookID string) (Book, error) {
 		Key:       map[string]types.AttributeValue{"Id": &types.AttributeValueMemberS{Value: bookID}},
 	})
 	if err != nil {
-		return Book{}, fmt.Errorf("failed to fetch book, id: %s, err: %w", bookID, err)
+		return Book{}, fmt.Errorf("%w. failed to fetch book, id: %s, err: %w", ErrDynamodb, bookID, err)
 	}
 	if output.Item == nil {
-		return Book{}, fmt.Errorf("book not found id: %s", bookID)
+		return Book{}, fmt.Errorf("%w. book id: %s", ErrNotFound, bookID)
 	}
 
 	var book Book
 	err = attributevalue.UnmarshalMap(output.Item, &book)
 	if err != nil {
-		return Book{}, fmt.Errorf("failed to unmarshal book: %w", err)
+		return Book{}, fmt.Errorf("%w. failed to unmarshal book: %w", ErrDynamodb, err)
 	}
 	return book, nil
 }

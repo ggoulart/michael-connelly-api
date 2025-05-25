@@ -33,7 +33,7 @@ func TestRepository_Save(t *testing.T) {
 				m.On("PutItem", mock.AnythingOfType("backgroundCtx"), input, mock.Anything).Return(&dynamodb.PutItemOutput{}, errors.New("dynamodb.PutItem error"))
 			},
 			want:    Character{},
-			wantErr: fmt.Errorf("failed to save character: %w", errors.New("dynamodb.PutItem error")),
+			wantErr: fmt.Errorf("%w. failed to save character: %w", ErrDynamodb, errors.New("dynamodb.PutItem error")),
 		},
 		{
 			name: "when successfully saved character",
@@ -81,7 +81,7 @@ func TestRepository_GetById(t *testing.T) {
 				input := &dynamodb.GetItemInput{TableName: aws.String("some-table-name"), Key: map[string]types.AttributeValue{"Id": &types.AttributeValueMemberS{Value: "a-random-character-id"}}}
 				m.On("GetItem", mock.AnythingOfType("backgroundCtx"), input, mock.Anything).Return(&dynamodb.GetItemOutput{}, assert.AnError)
 			},
-			wantErr: fmt.Errorf("failed to fetch character, id: %s, err: %w", "a-random-character-id", assert.AnError),
+			wantErr: fmt.Errorf("%w. failed to fetch character, id: %s, err: %w", ErrDynamodb, "a-random-character-id", assert.AnError),
 		},
 		{
 			name: "when character not found",
@@ -89,7 +89,7 @@ func TestRepository_GetById(t *testing.T) {
 				input := &dynamodb.GetItemInput{TableName: aws.String("some-table-name"), Key: map[string]types.AttributeValue{"Id": &types.AttributeValueMemberS{Value: "a-random-character-id"}}}
 				m.On("GetItem", mock.AnythingOfType("backgroundCtx"), input, mock.Anything).Return(&dynamodb.GetItemOutput{}, nil)
 			},
-			wantErr: fmt.Errorf("character not found id: %s", "a-random-character-id"),
+			wantErr: fmt.Errorf("%w. character id: %s", ErrNotFound, "a-random-character-id"),
 		},
 		{
 			name: "when failed to marshal output",
@@ -101,7 +101,7 @@ func TestRepository_GetById(t *testing.T) {
 				}}
 				m.On("GetItem", mock.AnythingOfType("backgroundCtx"), input, mock.Anything).Return(output, nil)
 			},
-			wantErr: fmt.Errorf("failed to unmarshal character: %w", errors.New("unmarshal failed, cannot unmarshal map into Go value type string")),
+			wantErr: fmt.Errorf("%w. failed to unmarshal character: %w", ErrDynamodb, errors.New("unmarshal failed, cannot unmarshal map into Go value type string")),
 		},
 		{
 			name: "when success get character",
