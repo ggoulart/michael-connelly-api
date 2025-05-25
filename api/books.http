@@ -1,0 +1,11 @@
+@address = 127.0.0.1:3000
+
+### POST create book
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "The Black Echo",
+  "year": 1992,
+  "blurb": "For LAPD homicide cop Harry Bosch — hero, maverick, nighthawk — the body in the drainpipe at Mulholland dam is more than another anonymous statistic.  This one is personal. The dead man, Billy Meadows, was a fellow Vietnam “tunnel rat” who fought side by side with him in a nightmare underground war that brought them to the depths of hell.  Now, Bosch is about to relive the horrors of Nam.  From a dangerous maze of blind alleys to a daring criminal heist beneath the city to the tortuous link that must be uncovered, his survival instincts will once again be tested to their limit. Joining with an enigmatic female FBI agent, pitted against enemies within his own department, Bosch must make the agonizing choice between justice and vengeance, as he tracks down a killer whose true face will shock him. The Black Echo won the Edgar Award for Best First Mystery Novel awarded by the Mystery Writers of America."
+}
