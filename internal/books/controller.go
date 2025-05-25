@@ -2,12 +2,9 @@ package books
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"net/http"
-	"strings"
 
-	"github.com/go-chi/chi/v5"
+	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -25,43 +22,39 @@ func NewController(manager Manager, validator *validator.Validate) *Controller {
 	return &Controller{manager: manager, validate: validator}
 }
 
-func (c *Controller) Create(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) Create(ctx *gin.Context) {
 	var book Book
-	if err := json.NewDecoder(r.Body).Decode(&book); err != nil {
-		http.Error(w, `{"error": "invalid request body"}`, http.StatusBadRequest)
+	if err := ctx.BindJSON(&book); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
 	}
 
 	if err := c.validate.Struct(book); err != nil {
-		http.Error(w, fmt.Sprintf(`{"error": "%s"}`, strings.ReplaceAll(err.Error(), "\n", " ")), http.StatusBadRequest)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	createdBook, err := c.manager.Create(r.Context(), book)
+	createdBook, err := c.manager.Create(ctx, book)
 	if err != nil {
-		http.Error(w, `{"error": "unexpected error"}`, http.StatusInternalServerError)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "invalid error"})
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(createdBook)
+	ctx.JSON(http.StatusCreated, createdBook)
 }
 
-func (c *Controller) GetById(w http.ResponseWriter, r *http.Request) {
-	bookID := chi.URLParam(r, "bookID")
+func (c *Controller) GetById(ctx *gin.Context) {
+	bookID := ctx.Param("bookID")
 	if bookID == "" {
-		http.Error(w, `{"error": "book id is required"}`, http.StatusBadRequest)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "bookID is required"})
 		return
 	}
 
-	book, err := c.manager.GetById(r.Context(), bookID)
+	book, err := c.manager.GetById(ctx, bookID)
 	if err != nil {
-		http.Error(w, `{"error": "unexpected error"}`, http.StatusInternalServerError)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(book)
+	ctx.JSON(http.StatusOK, book)
 }

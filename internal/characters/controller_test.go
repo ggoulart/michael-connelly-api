@@ -2,13 +2,12 @@ package characters
 
 import (
 	"context"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
-	"github.com/go-chi/chi/v5"
+	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -27,14 +26,14 @@ func TestController_Create(t *testing.T) {
 			reqBody:      `}`,
 			setup:        func(m *ManagerMock) {},
 			expectedCode: http.StatusBadRequest,
-			respBody:     `{"error": "invalid request body"}`,
+			respBody:     `{"error":"invalid request body"}`,
 		},
 		{
 			name:         "when request body is invalid",
 			reqBody:      `{}`,
 			setup:        func(m *ManagerMock) {},
 			expectedCode: http.StatusBadRequest,
-			respBody:     `{"error": "Key: 'Character.Name' Error:Field validation for 'Name' failed on the 'required' tag"}`,
+			respBody:     `{"error":"Key: 'Character.Name' Error:Field validation for 'Name' failed on the 'required' tag"}`,
 		},
 		{
 			name:    "when create character service fails",
@@ -44,7 +43,7 @@ func TestController_Create(t *testing.T) {
 				m.On("Create", mock.Anything, reqCharacter).Return(Character{}, assert.AnError).Once()
 			},
 			expectedCode: http.StatusInternalServerError,
-			respBody:     `{"error": "unexpected error"}`,
+			respBody:     `{"error":"assert.AnError general error for testing"}`,
 		},
 		{
 			name:    "when create character is successful",
@@ -63,18 +62,18 @@ func TestController_Create(t *testing.T) {
 			m := new(ManagerMock)
 			c := NewController(m, validator.New())
 
+			recorder := httptest.NewRecorder()
+			ctx, _ := gin.CreateTestContext(recorder)
+			ctx.Request = httptest.NewRequest(http.MethodPost, "/characters", strings.NewReader(tt.reqBody))
+
 			tt.setup(m)
 
-			req := httptest.NewRequest(http.MethodPost, "/characters", strings.NewReader(tt.reqBody))
-			w := httptest.NewRecorder()
+			c.Create(ctx)
 
-			c.Create(w, req)
+			ctx.Writer.WriteHeaderNow()
 
-			resp := w.Result()
-			body, _ := io.ReadAll(resp.Body)
-
-			assert.Equal(t, tt.expectedCode, resp.StatusCode)
-			assert.Equal(t, strings.TrimSpace(tt.respBody), strings.TrimSpace(string(body)))
+			assert.Equal(t, tt.expectedCode, recorder.Code)
+			assert.Equal(t, tt.respBody, recorder.Body.String())
 			m.AssertExpectations(t)
 		})
 	}
@@ -83,29 +82,29 @@ func TestController_Create(t *testing.T) {
 func TestController_GetById(t *testing.T) {
 	tests := []struct {
 		name         string
-		setup        func(*ManagerMock, *chi.Context)
+		setup        func(*ManagerMock, *gin.Context)
 		expectedCode int
 		respBody     string
 	}{
 		{
 			name:         "when missing character id req param",
-			setup:        func(_ *ManagerMock, _ *chi.Context) {},
+			setup:        func(_ *ManagerMock, _ *gin.Context) {},
 			expectedCode: http.StatusBadRequest,
-			respBody:     `{"error": "character id is required"}`,
+			respBody:     `{"error":"characterID is required"}`,
 		},
 		{
 			name: "when get character service fails",
-			setup: func(m *ManagerMock, rc *chi.Context) {
-				rc.URLParams.Add("characterID", "a-character-id")
+			setup: func(m *ManagerMock, ctx *gin.Context) {
+				ctx.Params = gin.Params{{Key: "characterID", Value: "a-character-id"}}
 				m.On("GetById", mock.Anything, "a-character-id").Return(Character{}, assert.AnError).Once()
 			},
 			expectedCode: http.StatusInternalServerError,
-			respBody:     `{"error": "unexpected error"}`,
+			respBody:     `{"error":"assert.AnError general error for testing"}`,
 		},
 		{
 			name: "when get character service is successful",
-			setup: func(m *ManagerMock, rc *chi.Context) {
-				rc.URLParams.Add("characterID", "a-character-id")
+			setup: func(m *ManagerMock, ctx *gin.Context) {
+				ctx.Params = gin.Params{{Key: "characterID", Value: "a-character-id"}}
 				respCharacter := Character{Id: "a-character-id", Name: "Harry Bosch"}
 				m.On("GetById", mock.Anything, "a-character-id").Return(respCharacter, nil).Once()
 			},
@@ -118,20 +117,18 @@ func TestController_GetById(t *testing.T) {
 			m := new(ManagerMock)
 			c := NewController(m, validator.New())
 
-			req := httptest.NewRequest(http.MethodGet, "/characters/character-id", nil)
-			rc := chi.NewRouteContext()
-			req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rc))
-			w := httptest.NewRecorder()
+			recorder := httptest.NewRecorder()
+			ctx, _ := gin.CreateTestContext(recorder)
+			ctx.Request = httptest.NewRequest(http.MethodGet, "/characters/character-id", nil)
 
-			tt.setup(m, rc)
+			tt.setup(m, ctx)
 
-			c.GetById(w, req)
+			c.GetById(ctx)
 
-			resp := w.Result()
-			body, _ := io.ReadAll(resp.Body)
+			ctx.Writer.WriteHeaderNow()
 
-			assert.Equal(t, tt.expectedCode, resp.StatusCode)
-			assert.Equal(t, strings.TrimSpace(tt.respBody), strings.TrimSpace(string(body)))
+			assert.Equal(t, tt.expectedCode, recorder.Code)
+			assert.Equal(t, tt.respBody, recorder.Body.String())
 			m.AssertExpectations(t)
 		})
 	}

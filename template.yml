@@ -26,5 +26,5 @@ Resources:
         BooksPost:
           Type: Api
           Properties:
-            Path: /books/
+            Path: /books/{id}
             Method: Get

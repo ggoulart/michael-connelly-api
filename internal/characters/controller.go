@@ -2,12 +2,9 @@ package characters
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"net/http"
-	"strings"
 
-	"github.com/go-chi/chi/v5"
+	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 )
 
@@ -25,43 +22,39 @@ func NewController(manager Manager, validator *validator.Validate) *Controller {
 	return &Controller{manager: manager, validate: validator}
 }
 
-func (c *Controller) Create(w http.ResponseWriter, r *http.Request) {
+func (c *Controller) Create(ctx *gin.Context) {
 	var character Character
-	if err := json.NewDecoder(r.Body).Decode(&character); err != nil {
-		http.Error(w, `{"error": "invalid request body"}`, http.StatusBadRequest)
+	if err := ctx.BindJSON(&character); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
 	}
 
 	if err := c.validate.Struct(character); err != nil {
-		http.Error(w, fmt.Sprintf(`{"error": "%s"}`, strings.ReplaceAll(err.Error(), "\n", " ")), http.StatusBadRequest)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	createdCharacter, err := c.manager.Create(r.Context(), character)
+	createdCharacter, err := c.manager.Create(ctx, character)
 	if err != nil {
-		http.Error(w, `{"error": "unexpected error"}`, http.StatusInternalServerError)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(createdCharacter)
+	ctx.JSON(http.StatusCreated, createdCharacter)
 }
 
-func (c *Controller) GetById(w http.ResponseWriter, r *http.Request) {
-	characterID := chi.URLParam(r, "characterID")
+func (c *Controller) GetById(ctx *gin.Context) {
+	characterID := ctx.Param("characterID")
 	if characterID == "" {
-		http.Error(w, `{"error": "character id is required"}`, http.StatusBadRequest)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "characterID is required"})
 		return
 	}
 
-	character, err := c.manager.GetById(r.Context(), characterID)
+	character, err := c.manager.GetById(ctx, characterID)
 	if err != nil {
-		http.Error(w, `{"error": "unexpected error"}`, http.StatusInternalServerError)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(character)
+	ctx.JSON(http.StatusOK, character)
 }

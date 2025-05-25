@@ -8,17 +8,17 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	chiadapter "github.com/awslabs/aws-lambda-go-api-proxy/chi"
+	ginadapter "github.com/awslabs/aws-lambda-go-api-proxy/gin"
 	"github.com/ggoulart/michael-connelly-api/internal/books"
 	"github.com/ggoulart/michael-connelly-api/internal/characters"
 	"github.com/ggoulart/michael-connelly-api/internal/health"
-	"github.com/go-chi/chi/v5"
+	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 )
 
 func main() {
-	region := ""
+	region := "us-east-1"
 	booksTable := "books"
 	characterTable := "characters"
 
@@ -47,25 +47,23 @@ func main() {
 
 	r := router(booksController, charactersController, healthController)
 
-	adapter := chiadapter.New(r)
+	adapter := ginadapter.New(r)
+
 	lambda.Start(adapter.ProxyWithContext)
 }
 
-func router(booksController *books.Controller, charactersController *characters.Controller, healthController *health.Controller) *chi.Mux {
-	r := chi.NewRouter()
-	r.Route("/health", func(r chi.Router) {
-		r.Get("/", healthController.Health)
-	})
+func router(booksController *books.Controller, charactersController *characters.Controller, healthController *health.Controller) *gin.Engine {
+	r := gin.Default()
 
-	r.Route("/books", func(r chi.Router) {
-		r.Post("/", booksController.Create)
-		r.Get("/{bookID}", booksController.GetById)
-	})
+	r.GET("/health", healthController.Health)
 
-	r.Route("/characters", func(r chi.Router) {
-		r.Post("/", charactersController.Create)
-		r.Get("/{characterID}", charactersController.GetById)
-	})
+	book := r.Group("/books")
+	book.POST("/", booksController.Create)
+	book.GET("/:bookID", booksController.GetById)
+
+	character := r.Group("/characters")
+	character.POST("/", charactersController.Create)
+	character.GET("/:characterID", charactersController.GetById)
 
 	return r
 }

@@ -26,6 +26,8 @@ vendor/
 go.work
 go.work.sum
 
+dynamodb-data/
+
 # env file
 .env
 
