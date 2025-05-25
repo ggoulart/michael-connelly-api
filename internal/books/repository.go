@@ -48,7 +48,7 @@ func (r *Repository) Save(ctx context.Context, book Book) (Book, error) {
 func (r *Repository) GetById(ctx context.Context, bookID string) (Book, error) {
 	output, err := r.dynamoDB.GetItem(ctx, &dynamodb.GetItemInput{
 		TableName: aws.String(r.tableName),
-		Key:       map[string]types.AttributeValue{"id": &types.AttributeValueMemberS{Value: bookID}},
+		Key:       map[string]types.AttributeValue{"Id": &types.AttributeValueMemberS{Value: bookID}},
 	})
 	if err != nil {
 		return Book{}, fmt.Errorf("failed to fetch book, id: %s, err: %w", bookID, err)

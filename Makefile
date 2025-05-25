@@ -9,6 +9,3 @@ run:
 
 clean:
 	rm -f $(APP_NAME)
-
-sam-local: build
-	sam local start-api --debug

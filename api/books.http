@@ -11,5 +11,5 @@ Content-Type: application/json
 }
 
 ### GET book by id
-GET http://{{address}}/books/234432
+GET http://{{address}}/books/cd137a15-a129-47e0-8365-8b395c5b48e5
 Content-Type: application/json
