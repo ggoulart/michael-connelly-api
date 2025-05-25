@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -27,13 +26,6 @@ func TestController_Create(t *testing.T) {
 			setup:        func(m *ManagerMock) {},
 			expectedCode: http.StatusBadRequest,
 			respBody:     `{"error":"invalid request body"}`,
-		},
-		{
-			name:         "when request body is invalid",
-			reqBody:      `{}`,
-			setup:        func(m *ManagerMock) {},
-			expectedCode: http.StatusBadRequest,
-			respBody:     `{"error":"Key: 'Character.Name' Error:Field validation for 'Name' failed on the 'required' tag"}`,
 		},
 		{
 			name:    "when create character service fails",
@@ -60,7 +52,7 @@ func TestController_Create(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			m := new(ManagerMock)
-			c := NewController(m, validator.New())
+			c := NewController(m)
 
 			recorder := httptest.NewRecorder()
 			ctx, _ := gin.CreateTestContext(recorder)
@@ -115,7 +107,7 @@ func TestController_GetById(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			m := new(ManagerMock)
-			c := NewController(m, validator.New())
+			c := NewController(m)
 
 			recorder := httptest.NewRecorder()
 			ctx, _ := gin.CreateTestContext(recorder)

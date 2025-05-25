@@ -1,0 +1,13 @@
+@address = 127.0.0.1:3000
+
+### POST create characters
+POST http://{{address}}/characters
+Content-Type: application/json
+
+{
+  "name": "Harry Bosch"
+}
+
+### GET characters by id
+GET http://{{address}}/characters/cd137a15-a129-47e0-8365-8b395c5b48e5
+Content-Type: application/json

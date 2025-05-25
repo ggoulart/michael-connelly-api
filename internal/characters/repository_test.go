@@ -78,7 +78,7 @@ func TestRepository_GetById(t *testing.T) {
 		{
 			name: "when failed to get character",
 			setup: func(m *MockDynamoDBClient) {
-				input := &dynamodb.GetItemInput{TableName: aws.String("some-table-name"), Key: map[string]types.AttributeValue{"id": &types.AttributeValueMemberS{Value: "a-random-character-id"}}}
+				input := &dynamodb.GetItemInput{TableName: aws.String("some-table-name"), Key: map[string]types.AttributeValue{"Id": &types.AttributeValueMemberS{Value: "a-random-character-id"}}}
 				m.On("GetItem", mock.AnythingOfType("backgroundCtx"), input, mock.Anything).Return(&dynamodb.GetItemOutput{}, assert.AnError)
 			},
 			wantErr: fmt.Errorf("failed to fetch character, id: %s, err: %w", "a-random-character-id", assert.AnError),
@@ -86,7 +86,7 @@ func TestRepository_GetById(t *testing.T) {
 		{
 			name: "when character not found",
 			setup: func(m *MockDynamoDBClient) {
-				input := &dynamodb.GetItemInput{TableName: aws.String("some-table-name"), Key: map[string]types.AttributeValue{"id": &types.AttributeValueMemberS{Value: "a-random-character-id"}}}
+				input := &dynamodb.GetItemInput{TableName: aws.String("some-table-name"), Key: map[string]types.AttributeValue{"Id": &types.AttributeValueMemberS{Value: "a-random-character-id"}}}
 				m.On("GetItem", mock.AnythingOfType("backgroundCtx"), input, mock.Anything).Return(&dynamodb.GetItemOutput{}, nil)
 			},
 			wantErr: fmt.Errorf("character not found id: %s", "a-random-character-id"),
@@ -94,7 +94,7 @@ func TestRepository_GetById(t *testing.T) {
 		{
 			name: "when failed to marshal output",
 			setup: func(m *MockDynamoDBClient) {
-				input := &dynamodb.GetItemInput{TableName: aws.String("some-table-name"), Key: map[string]types.AttributeValue{"id": &types.AttributeValueMemberS{Value: "a-random-character-id"}}}
+				input := &dynamodb.GetItemInput{TableName: aws.String("some-table-name"), Key: map[string]types.AttributeValue{"Id": &types.AttributeValueMemberS{Value: "a-random-character-id"}}}
 				output := &dynamodb.GetItemOutput{Item: map[string]types.AttributeValue{
 					"id":   &types.AttributeValueMemberS{Value: "character-123"},
 					"name": &types.AttributeValueMemberM{Value: map[string]types.AttributeValue{}},
@@ -106,7 +106,7 @@ func TestRepository_GetById(t *testing.T) {
 		{
 			name: "when success get character",
 			setup: func(m *MockDynamoDBClient) {
-				input := &dynamodb.GetItemInput{TableName: aws.String("some-table-name"), Key: map[string]types.AttributeValue{"id": &types.AttributeValueMemberS{Value: "a-random-character-id"}}}
+				input := &dynamodb.GetItemInput{TableName: aws.String("some-table-name"), Key: map[string]types.AttributeValue{"Id": &types.AttributeValueMemberS{Value: "a-random-character-id"}}}
 				output := &dynamodb.GetItemOutput{Item: map[string]types.AttributeValue{"id": &types.AttributeValueMemberS{Value: "character-123"}}}
 				m.On("GetItem", mock.AnythingOfType("backgroundCtx"), input, mock.Anything).Return(output, nil)
 			},

@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -29,13 +28,6 @@ func TestController_Create(t *testing.T) {
 			respBody:     `{"error":"invalid request body"}`,
 		},
 		{
-			name:         "when request body is invalid",
-			reqBody:      `{}`,
-			setup:        func(m *ManagerMock) {},
-			expectedCode: http.StatusBadRequest,
-			respBody:     `{"error":"Key: 'Book.Title' Error:Field validation for 'Title' failed on the 'required' tag\nKey: 'Book.Year' Error:Field validation for 'Year' failed on the 'required' tag"}`,
-		},
-		{
 			name:    "when create book service fails",
 			reqBody: `{"title": "The Black Echo", "year": 1992, "blurb": "a random blurb"}`,
 			setup: func(m *ManagerMock) {
@@ -43,7 +35,7 @@ func TestController_Create(t *testing.T) {
 				m.On("Create", mock.Anything, reqBook).Return(Book{}, assert.AnError).Once()
 			},
 			expectedCode: http.StatusInternalServerError,
-			respBody:     `{"error":"assert.AnError general error for testing"}`,
+			respBody:     `{"error":"invalid error"}`,
 		},
 		{
 			name:    "when create book service is successful",
@@ -60,7 +52,7 @@ func TestController_Create(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			m := new(ManagerMock)
-			c := NewController(m, validator.New())
+			c := NewController(m)
 
 			recorder := httptest.NewRecorder()
 			ctx, _ := gin.CreateTestContext(recorder)
@@ -115,7 +107,7 @@ func TestController_GetById(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			m := new(ManagerMock)
-			c := NewController(m, validator.New())
+			c := NewController(m)
 
 			recorder := httptest.NewRecorder()
 			ctx, _ := gin.CreateTestContext(recorder)

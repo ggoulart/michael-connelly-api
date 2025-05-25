@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 )
 
 type Manager interface {
@@ -14,23 +13,17 @@ type Manager interface {
 }
 
 type Controller struct {
-	manager  Manager
-	validate *validator.Validate
+	manager Manager
 }
 
-func NewController(manager Manager, validator *validator.Validate) *Controller {
-	return &Controller{manager: manager, validate: validator}
+func NewController(manager Manager) *Controller {
+	return &Controller{manager: manager}
 }
 
 func (c *Controller) Create(ctx *gin.Context) {
 	var character Character
 	if err := ctx.BindJSON(&character); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
-		return
-	}
-
-	if err := c.validate.Struct(character); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 

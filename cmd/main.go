@@ -15,7 +15,6 @@ import (
 	"github.com/ggoulart/michael-connelly-api/internal/characters"
 	"github.com/ggoulart/michael-connelly-api/internal/health"
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 )
 
@@ -29,8 +28,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to load config: %v", err)
 	}
-
-	v := validator.New()
 
 	dynamodbClient := dynamodb.NewFromConfig(cfg, func(o *dynamodb.Options) {
 		o.BaseEndpoint = aws.String("http://localhost:8000")
@@ -47,11 +44,11 @@ func main() {
 
 	booksRepository := books.NewRepository(dynamodbClient, booksTable, uuidGenerator)
 	booksService := books.NewService(booksRepository)
-	booksController := books.NewController(booksService, v)
+	booksController := books.NewController(booksService)
 
 	charactersRepository := characters.NewRepository(dynamodbClient, characterTable, uuidGenerator)
 	charactersService := characters.NewService(charactersRepository)
-	charactersController := characters.NewController(charactersService, v)
+	charactersController := characters.NewController(charactersService)
 
 	r := router(booksController, charactersController, healthController)
 

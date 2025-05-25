@@ -7,5 +7,8 @@ build:
 run:
 	go run ./cmd/main.go
 
+test:
+	go test ./internal/... -count=1
+
 clean:
 	rm -f $(APP_NAME)
