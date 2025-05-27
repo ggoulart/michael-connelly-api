@@ -1,6 +1,6 @@
 @address = 127.0.0.1:3000
 
-### POST create book
+### POST create book The Black Echp
 POST http://{{address}}/books
 Content-Type: application/json
 
@@ -10,6 +10,84 @@ Content-Type: application/json
   "blurb": "For LAPD homicide cop Harry Bosch — hero, maverick, nighthawk — the body in the drainpipe at Mulholland dam is more than another anonymous statistic.  This one is personal. The dead man, Billy Meadows, was a fellow Vietnam “tunnel rat” who fought side by side with him in a nightmare underground war that brought them to the depths of hell.  Now, Bosch is about to relive the horrors of Nam.  From a dangerous maze of blind alleys to a daring criminal heist beneath the city to the tortuous link that must be uncovered, his survival instincts will once again be tested to their limit. Joining with an enigmatic female FBI agent, pitted against enemies within his own department, Bosch must make the agonizing choice between justice and vengeance, as he tracks down a killer whose true face will shock him. The Black Echo won the Edgar Award for Best First Mystery Novel awarded by the Mystery Writers of America."
 }
 
-### GET book by id
-GET http://{{address}}/books/cd137a15-a129-47e0-8365-8b395c5b48e5
+### POST create book The Black Ice
+POST http://{{address}}/books
 Content-Type: application/json
+
+{
+  "title": "The Black Ice",
+  "year": 1993,
+  "blurb": "The official report said suicide. But in a city where murder is sport, Bosch isn’t ready to blame the victim. Narcotics officer Cal Moore’s orders were to look into the city’s latest drug killing. Instead, he ends up in a motel room with his head in several pieces and a suicide note stuffed in his back pocket. Years ago, Harry learned the first rule of the good cop: don’t look for the facts, but the glue that holds them together. Now, Harry’s making some very dangerous connections, starting with one dead cop and leading to a bloody string of murders that wind from Hollywood Boulevard’s drug bazaar to the dusty back alleys south of the border and into the center of a complex and lethal game — one in which Harry is the next and likeliest victim. After his richly acclaimed debut, Michael Connelly brings Bosch back in an achievement even more stunning and suspenseful than its predecessor — a time-bomb of a novel supercharged with tension and non-stop action that doesn’t let up until the final, explosive ending. Michael Connelly received the Maltese Falcon Award from the Maltese Falcon Society of Japan for The Black Ice, which was judged the best private eye novel published in Japan in the previous year."
+}
+
+### POST create book The Concrete Blonde
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "The Concrete Blonde",
+  "year": 1994,
+  "blurb": "They called him the Dollmaker… The serial killer who stalked Los Angeles and left a grisly calling card on the faces of his female victims.  With a single faultless shot, Detective Harry Bosch thought he had ended the city’s nightmare. Now, the dead man’s widow is suing Harry and the LAPD for killing the wrong man — an accusation that rings terrifyingly true when a new victim is discovered with the Dollmaker’s macabre signature. Now, for the second time, Harry must hunt down a death-dealer who is very much alive, before he strikes again.  It’s a blood-tracked quest that will take Harry from the hard edges of the L.A. night to the last place he ever wanted to go — the darkness of his own heart. With The Concrete Blonde, Edgar Award-winning author Michael Connelly has hit a whole new level in his career, creating a breathtaking thriller that thrusts you into a blistering courtroom battle — and a desperate search for a sadistic killer."
+}
+
+### POST create book The Last Coyote
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "The Last Coyote",
+  "year": 1995,
+  "blurb": "Michael Connelly’s fourth novel cuts to the very core of Harry Bosch’s character, as he is drawn to investigate a thirty-year-old unsolved crime: the murder of his mother. Harry’s life is a mess.  His house has been condemned because of earthquake damage.  His girlfriend has left him.  He’s drinking too much.  And he’s even had to turn in his badge: he attacked his commanding officer and is suspended indefinitely pending a psychiatric evaluation. At first Bosch, resists the LAPD shrink, but finally he recognizes that something is troubling him, a force that may have shaped his entire life.  In 1961, when Harry was eleven, his mother was brutally murdered.  No one was ever even accused of the crime. Harry opens up the decades-old file on the case and is irresistibly drawn into a past he has always avoided.  It’s clear that the case was fumbled.  His mother was a prostitute, and even thirty years late the smell of a cover-up is unmistakable.  Someone powerful was able to keep the investigating officers away from key suspects.  Even as he confronts his own shame about his mother, Harry relentlessly follows up the old evidence, seeking justice or at least understanding.  Out of the broken pieces of the case he discerns a trail that leads upward, toward prominent people who lead public lives high in the Hollywood hills.  And as he nears his answer, Harry finds that ancient passions don’t die.  They cause new murders even today."
+}
+
+### POST create book Trunk Music
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "Trunk Music",
+  "year": 1997,
+  "blurb": "Back on the job after an involuntary leave of absence, LAPD homicide detective Harry Bosch lands his first case: a Hollywood producer found in the trunk of his Rolls-Royce, shot twice in the head.  It looks like “trunk music,” a Mafia hit. The LAPD’s organized crime unit is oddly uninterested, but Harry thinks they’re wrong.  He follows the money trail from the producer’s office to Las Vegas, where he quickly finds evidence of Mafia involvement.  But something about the case doesn’t add up, and Harry follows a string of odd clues — glitter in the producer’s cuffs, an over-the-counter medication in the Rolls’ glove box — in a different direction entirely. Just when Harry thinks he’s on firm ground, the bottom falls out.  Blind sided again and again, at odds with his superiors, and overwhelmed by a romance that has cropped up in the middle of the case, Harry is as off balance as he’s ever been.  When the picture finally comes into focus, Harry discovers a scheme many magnitudes more deadly than he imagined—with himself now one of its targets.  Running on instincts and nerves, with a short fuse and everything to lose, Harry must prove himself not just by breaking the case, but by surviving it."
+}
+
+### POST create book Angels Flight
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "Angels Flight",
+  "year": 1999,
+  "blurb": "When the body of high profile black lawyer Howard Elias is found inside one of the cars on Angels Flight, a cable railway in downtown Los Angeles, there’s not a detective in the city who wants to touch the case.  For Elias specialized in lawsuits alleging police brutality, racism, and corruption, and every LAPD cop is a possible suspect in his killing. Detective Harry Bosch is put in charge.  Elias’s murder occurred on the eve of a major trial: on behalf of black client, Michael Harris, Elias was to bring a civil case against the LAPD for violent interrogation tactics that had caused his client the partial loss of his hearing.  Harris had been acquitted of the rape and murder of a twelve-year-old girl, but many, including Bosch, believe him guilty.  Elias had let it be known that the trial would serve a dual purpose — to target and bring down the guilty cops and to expose the real murderer of the little girl.  Post Rodney King, the 1992 riots, and the trial of O.J. Simpson, the City of Angels is living on its nerves.  To discover the truth Harry must dig deep in his own backyard — except that it’s a minefield of suspicion and hate that could detonate in his face. And as if he didn’t have enough on his mind, his happiness with Eleanor Wish looks to be short-lived.  Five cards on the felt are pulling her back to a place where Harry cannot follow, back to herself."
+}
+
+### POST create book A Darkness More Than Night
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "A Darkness More Than Night",
+  "year": 2001,
+  "blurb": "Harry Bosch is up to his neck in a case that has transfixed all of celebrity-mad Los Angeles: a movie director is charged with murdering an actress during sex, and then staging her death to make it look like a suicide.  Bosch is both the arresting officer and the star witness in a trial that has brought the Hollywood media pack out in full-throated frenzy. Meanwhile, Terry McCaleb is enjoying an idyllic retirement on Catalina Island when a visit from an old colleague brings his former world rushing back.  It’s a murder, the unreadable kind of murder he specialized in solving back in his FBI days.  The investigation has stalled, and the sheriff’s office is asking McCaleb to take a quick look at the murder book to see if he turns up something they’ve missed. McCaleb’s first reading of the crime scene leads him to look for a methodical killer with a taste for rituals and revenge.  As his quick look accelerates into a full-sprint investigation, the two crimes — his murdered loner and Bosch’s movie director — begin to overlap strangely.  With one unsettling revelation after another, they merge, becoming one impossible, terrifying case, involving almost inconceivable calculation.  McCaleb believes he has unmasked the most frightening killer ever to cross his sights.  But his investigation tangles with Bosch’s lines, and the two men find themselves at odds in the most dangerous investigation of their lives."
+}
+
+### POST create book City Of Bones
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "City Of Bones",
+  "year": 2002,
+  "blurb": "On New Year’s Day, Detective Harry Bosch fields a call that a dog has found a bone — a bone that the dog’s owner, a doctor, feels certain is a human bone. Bosch investigates, and that chance discovery leads him to a shallow grave in the Hollywood hills, evidence of a murder committed more than twenty years earlier. It’s a cold case, but it stirs up Bosch’s memories of his own childhood as an orphan in the city. He can’t let it go. Digging through police reports and hospital records, tracking down street kids and runaways from the 1970s, Bosch finds a family ripped apart by an absence — and a trail, ever more tenuous, into a violent, terrifying world. As the case takes Bosch deeper into the past, a rookie cop named Julia Brasher brings him alive in the present in a way no one has in years. Bosch has been warned about the trouble that comes with dating a rookie, but no warning could withstand the heat between them — or prepare Bosch for the explosions when the case takes a hard turn. A suspect bolts, a cop is shot, and suddenly Bosch’s cold case has all of L.A. in an uproar — and Bosch fighting to keep control in a lawless and brutal showdown. The investigation races to a shocking conclusion and leaves Bosch on the brink of an unimaginable decision — one that will leave readers hungrily awaiting for the next Bosch novel."
+}
+
+### POST create book Lost Light
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "Lost Light",
+  "year": 2003,
+  "blurb": "Fed up with the hypocrisy of the LAPD, Harry Bosch has resigned and is forced to find a new way of life. But the life of a retiree doesn’t suit him. He has always devoted himself to justice, and he is still drawn toward protecting —or avenging — those whom the law has failed. When he left the LAPD Bosch took a file with him— the case of a film production assistant murdered four years earlier during a $2 million robbery on a movie set. The LAPD — now operating under post 9/11 rules — think the stolen money was used to finance a terrorist training camp. Thoughts of the original murder victim are lost in the federal zeal, and when it seems the killer will be set free to aid the feds’ terrorist hunt, Bosch quickly finds himself in conflict with both his old colleagues and the FBI. He cannot rest until he finds the killer — with or without a badge. Michael Connelly received the Maltese Falcon Award from the Maltese Falcon Society of Japan for Lost Light, which was judged the best private eye novel published in Japan in the previous year. This is Michael Connelly’s second Falcon Award, his first being for The Black Ice."
+}
+
+

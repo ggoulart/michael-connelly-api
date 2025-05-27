@@ -21,19 +21,19 @@ func NewController(manager Manager) *Controller {
 }
 
 func (c *Controller) Create(ctx *gin.Context) {
-	var character Character
-	if err := ctx.BindJSON(&character); err != nil {
+	var characterRequest CharacterRequest
+	if err := ctx.BindJSON(&characterRequest); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
 	}
 
-	createdCharacter, err := c.manager.Create(ctx, character)
+	createdCharacter, err := c.manager.Create(ctx, characterRequest.ToCharacter())
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, createdCharacter)
+	ctx.JSON(http.StatusCreated, NewCharacterResponse(createdCharacter))
 }
 
 func (c *Controller) GetById(ctx *gin.Context) {
@@ -49,5 +49,34 @@ func (c *Controller) GetById(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, character)
+	ctx.JSON(http.StatusOK, NewCharacterResponse(character))
+}
+
+type CharacterRequest struct {
+	Name string `json:"name" binding:"required"`
+}
+
+func (r *CharacterRequest) ToCharacter() Character {
+	return Character{
+		Name: r.Name,
+	}
+}
+
+type CharacterResponse struct {
+	ID          string   `json:"id,omitempty"`
+	Name        string   `json:"name"`
+	BooksTitles []string `json:"booksTitles,omitempty"`
+}
+
+func NewCharacterResponse(character Character) CharacterResponse {
+	var booksTitles []string
+	for _, b := range character.Books {
+		booksTitles = append(booksTitles, b.Title)
+	}
+
+	return CharacterResponse{
+		ID:          character.Id,
+		Name:        character.Name,
+		BooksTitles: booksTitles,
+	}
 }

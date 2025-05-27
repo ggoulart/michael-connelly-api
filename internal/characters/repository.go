@@ -33,7 +33,7 @@ func NewRepository(dynamoDB DynamoDBClient, tableName string, uuidGen func() uui
 func (r *Repository) Save(ctx context.Context, character Character) (Character, error) {
 	character.Id = r.uuidGen().String()
 
-	item, err := attributevalue.MarshalMap(character)
+	item, err := attributevalue.MarshalMap(NewDBCharacter(character))
 	if err != nil {
 		return Character{}, fmt.Errorf("%w. failed to marshal character: %w", ErrDynamodb, err)
 	}
@@ -52,7 +52,7 @@ func (r *Repository) Save(ctx context.Context, character Character) (Character, 
 func (r *Repository) GetById(ctx context.Context, characterID string) (Character, error) {
 	output, err := r.dynamoDB.GetItem(ctx, &dynamodb.GetItemInput{
 		TableName: aws.String(r.tableName),
-		Key:       map[string]types.AttributeValue{"Id": &types.AttributeValueMemberS{Value: characterID}},
+		Key:       map[string]types.AttributeValue{"id": &types.AttributeValueMemberS{Value: characterID}},
 	})
 	if err != nil {
 		return Character{}, fmt.Errorf("%w. failed to fetch character, id: %s, err: %w", ErrDynamodb, characterID, err)
@@ -67,4 +67,23 @@ func (r *Repository) GetById(ctx context.Context, characterID string) (Character
 		return Character{}, fmt.Errorf("%w. failed to unmarshal character: %w", ErrDynamodb, err)
 	}
 	return character, nil
+}
+
+type DBCharacter struct {
+	ID    string   `dynamodbav:"id"`
+	Name  string   `dynamodbav:"name"`
+	Books []string `dynamodbav:"books"`
+}
+
+func NewDBCharacter(character Character) DBCharacter {
+	var bookIds []string
+	for _, b := range character.Books {
+		bookIds = append(bookIds, b.Id)
+	}
+
+	return DBCharacter{
+		ID:    character.Id,
+		Name:  character.Name,
+		Books: bookIds,
+	}
 }

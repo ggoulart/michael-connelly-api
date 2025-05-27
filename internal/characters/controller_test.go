@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ggoulart/michael-connelly-api/internal/books"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -42,11 +43,11 @@ func TestController_Create(t *testing.T) {
 			reqBody: `{"name":"Harry Bosch"}`,
 			setup: func(m *ManagerMock) {
 				reqCharacter := Character{Name: "Harry Bosch"}
-				respCharacter := Character{Id: "random-id", Name: "Harry Bosch", Books: []string{"random-book-id"}}
+				respCharacter := Character{Id: "random-id", Name: "Harry Bosch", Books: []books.Book{{Title: "random-book-title"}}}
 				m.On("Create", mock.Anything, reqCharacter).Return(respCharacter, nil).Once()
 			},
 			expectedCode: http.StatusCreated,
-			respBody:     `{"id":"random-id","name":"Harry Bosch","books":["random-book-id"]}`,
+			respBody:     `{"id":"random-id","name":"Harry Bosch","booksTitles":["random-book-title"]}`,
 		},
 	}
 	for _, tt := range tests {

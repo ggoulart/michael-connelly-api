@@ -33,7 +33,7 @@ func NewRepository(dynamoDB DynamoDBClient, tableName string, uuidGen func() uui
 func (r *Repository) Save(ctx context.Context, book Book) (Book, error) {
 	book.Id = r.uuidGen().String()
 
-	item, err := attributevalue.MarshalMap(book)
+	item, err := attributevalue.MarshalMap(NewDBBook(book))
 	if err != nil {
 		return Book{}, fmt.Errorf("%w. failed to marshal book: %w", ErrDynamodb, err)
 	}
@@ -66,5 +66,22 @@ func (r *Repository) GetById(ctx context.Context, bookID string) (Book, error) {
 	if err != nil {
 		return Book{}, fmt.Errorf("%w. failed to unmarshal book: %w", ErrDynamodb, err)
 	}
+
 	return book, nil
+}
+
+type DBBook struct {
+	ID    string `dynamodbav:"id"`
+	Title string `dynamodbav:"title"`
+	Year  int    `dynamodbav:"year"`
+	Blurb string `dynamodbav:"blurb"`
+}
+
+func NewDBBook(book Book) DBBook {
+	return DBBook{
+		ID:    book.Id,
+		Title: book.Title,
+		Year:  book.Year,
+		Blurb: book.Blurb,
+	}
 }

@@ -1,7 +1,9 @@
 package characters
 
+import "github.com/ggoulart/michael-connelly-api/internal/books"
+
 type Character struct {
-	Id    string   `json:"id,omitempty"`
-	Name  string   `json:"name" binding:"required"`
-	Books []string `json:"books,omitempty"`
+	Id    string
+	Name  string
+	Books []books.Book
 }
