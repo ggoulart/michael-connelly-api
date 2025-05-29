@@ -10,7 +10,8 @@ import (
 type Manager interface {
 	Create(ctx context.Context, character Character) (Character, error)
 	GetById(ctx context.Context, characterID string) (Character, error)
-	AddBooks(ctx context.Context, characterID string, booksNames []string) (Character, error)
+	GetByName(ctx context.Context, characterName string) (Character, error)
+	AddBooks(ctx context.Context, characterID string, bookTitles []string) (Character, error)
 }
 
 type Controller struct {
@@ -67,6 +68,22 @@ func (c *Controller) AddBooks(ctx *gin.Context) {
 	}
 
 	character, err := c.manager.AddBooks(ctx, characterID, addBooksRequest.BookTitles)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, NewCharacterResponse(character))
+}
+
+func (c *Controller) GetByName(ctx *gin.Context) {
+	name := ctx.Query("name")
+	if name == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "query param 'name' is required"})
+		return
+	}
+
+	character, err := c.manager.GetByName(ctx, name)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

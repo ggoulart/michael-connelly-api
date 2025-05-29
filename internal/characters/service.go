@@ -9,6 +9,7 @@ import (
 type StorageCharacter interface {
 	Save(ctx context.Context, character Character) (Character, error)
 	GetById(ctx context.Context, characterID string) (Character, error)
+	GetByName(ctx context.Context, characterName string) (Character, error)
 	AddBooks(ctx context.Context, characterID string, booksList []books.Book) (Character, error)
 }
 
@@ -43,8 +44,17 @@ func (s *Service) GetById(ctx context.Context, characterID string) (Character, e
 	return character, nil
 }
 
-func (s *Service) AddBooks(ctx context.Context, characterID string, booksNames []string) (Character, error) {
-	booksList, err := s.storageBooks.GetByNames(ctx, booksNames)
+func (s *Service) GetByName(ctx context.Context, characterName string) (Character, error) {
+	character, err := s.storageCharacter.GetByName(ctx, characterName)
+	if err != nil {
+		return Character{}, err
+	}
+
+	return character, nil
+}
+
+func (s *Service) AddBooks(ctx context.Context, characterID string, bookTitles []string) (Character, error) {
+	booksList, err := s.storageBooks.GetByNames(ctx, bookTitles)
 	if err != nil {
 		return Character{}, err
 	}

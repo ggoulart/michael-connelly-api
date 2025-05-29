@@ -80,6 +80,7 @@ func (r *Repository) GetByNames(ctx context.Context, bookTitles []string) ([]Boo
 			IndexName:                 aws.String("books_title"),
 			KeyConditionExpression:    aws.String("title = :title"),
 			ExpressionAttributeValues: map[string]types.AttributeValue{":title": &types.AttributeValueMemberS{Value: title}},
+			Limit:                     aws.Int32(1),
 		})
 		if err != nil {
 			return nil, fmt.Errorf("%w. failed to fetch book, title: %s, err: %w", ErrDynamodb, title, err)

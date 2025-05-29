@@ -1,23 +1,34 @@
 @address = 127.0.0.1:3000
 
-### POST create characters
-POST http://{{address}}/characters
+#### POST create characters
+#POST http://{{address}}/characters
+#Content-Type: application/json
+#
+#{
+#  "name": "Harry Bosch"
+#}
+
+### GET characters by name
+GET http://{{address}}/characters?name=Harry Bosch
 Content-Type: application/json
 
-{
-  "name": "Harry Bosch"
-}
+> {% client.global.set("characterID", response.body.id); %}
 
-### GET characters by id
-GET http://{{address}}/characters/cd137a15-a129-47e0-8365-8b395c5b48e5
-Content-Type: application/json
 
 ### POST character add book
-POST http://{{address}}/characters/0d15c166-65ab-4cd9-b582-8c9939648cd2/books
+POST http://{{address}}/characters/{{characterID}}/books
 Content-Type: application/json
 
 {
   "bookTitles": [
-    "The Black Echo"
+    "The Black Echo",
+    "The Black Ice",
+    "The Concrete Blonde",
+    "The Last Coyote",
+    "Trunk Music",
+    "Angels Flight",
+    "A Darkness More Than Night",
+    "City Of Bones",
+    "Lost Light"
   ]
 }

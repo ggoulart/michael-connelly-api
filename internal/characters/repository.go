@@ -20,6 +20,7 @@ type DynamoDBClient interface {
 	PutItem(ctx context.Context, params *dynamodb.PutItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.PutItemOutput, error)
 	GetItem(ctx context.Context, params *dynamodb.GetItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.GetItemOutput, error)
 	UpdateItem(ctx context.Context, params *dynamodb.UpdateItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.UpdateItemOutput, error)
+	Query(ctx context.Context, params *dynamodb.QueryInput, optFns ...func(*dynamodb.Options)) (*dynamodb.QueryOutput, error)
 }
 
 type Repository struct {
@@ -71,6 +72,32 @@ func (r *Repository) GetById(ctx context.Context, characterID string) (Character
 	return character, nil
 }
 
+func (r *Repository) GetByName(ctx context.Context, characterName string) (Character, error) {
+	output, err := r.dynamoDB.Query(ctx, &dynamodb.QueryInput{
+		TableName:                 aws.String(r.tableName),
+		IndexName:                 aws.String("characters_name"),
+		KeyConditionExpression:    aws.String("#n = :name"),
+		ExpressionAttributeNames:  map[string]string{"#n": "name"},
+		ExpressionAttributeValues: map[string]types.AttributeValue{":name": &types.AttributeValueMemberS{Value: characterName}},
+		Limit:                     aws.Int32(1),
+	})
+	if err != nil {
+		return Character{}, fmt.Errorf("%w. failed to query character by name: %w", ErrDynamodb, err)
+	}
+
+	if len(output.Items) == 0 {
+		return Character{}, fmt.Errorf("%w. character name: %s", ErrNotFound, characterName)
+	}
+
+	var character Character
+	err = attributevalue.UnmarshalMap(output.Items[0], &character)
+	if err != nil {
+		return Character{}, fmt.Errorf("%w. failed to unmarshal character: %w", ErrDynamodb, err)
+	}
+
+	return character, nil
+}
+
 func (r *Repository) AddBooks(ctx context.Context, characterID string, booksList []books.Book) (Character, error) {
 	var bookIDs []types.AttributeValue
 	for _, b := range booksList {
@@ -85,7 +112,7 @@ func (r *Repository) AddBooks(ctx context.Context, characterID string, booksList
 			":new_books":  &types.AttributeValueMemberL{Value: bookIDs},
 			":empty_list": &types.AttributeValueMemberL{Value: []types.AttributeValue{}},
 		},
-		ReturnValues: types.ReturnValueNone,
+		ReturnValues: types.ReturnValueAllNew,
 	})
 	if err != nil {
 		return Character{}, fmt.Errorf("%w. failed to add books to character: %w", ErrDynamodb, err)
@@ -101,7 +128,7 @@ type DBCharacter struct {
 }
 
 func NewDBCharacter(character Character) DBCharacter {
-	var bookIds []string
+	bookIds := []string{}
 	for _, b := range character.Books {
 		bookIds = append(bookIds, b.Id)
 	}

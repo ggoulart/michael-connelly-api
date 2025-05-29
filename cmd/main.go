@@ -75,6 +75,7 @@ func router(booksController *books.Controller, charactersController *characters.
 
 	character := r.Group("/characters")
 	character.POST("/", charactersController.Create)
+	character.GET("/", charactersController.GetByName)
 	character.GET("/:characterID", charactersController.GetById)
 	character.POST("/:characterID/books", charactersController.AddBooks)
 
