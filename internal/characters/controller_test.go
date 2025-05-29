@@ -140,3 +140,8 @@ func (m *ManagerMock) GetById(ctx context.Context, characterID string) (Characte
 	args := m.Called(ctx, characterID)
 	return args.Get(0).(Character), args.Error(1)
 }
+
+func (m *ManagerMock) AddBooks(ctx context.Context, characterID string, booksNames []string) (Character, error) {
+	args := m.Called(ctx, characterID, booksNames)
+	return args.Get(0).(Character), args.Error(1)
+}

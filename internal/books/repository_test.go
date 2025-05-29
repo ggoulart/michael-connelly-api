@@ -4,9 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"reflect"
 	"testing"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/google/uuid"
@@ -25,10 +27,10 @@ func TestRepository_Save(t *testing.T) {
 			name: "when failed to save book",
 			setup: func(m *MockDynamoDBClient) {
 				item := map[string]types.AttributeValue{}
-				item["Id"] = &types.AttributeValueMemberS{Value: "c6767b2d-438b-4d4c-8b1a-659130a640ca"}
-				item["Title"] = &types.AttributeValueMemberS{Value: "The Black Echo"}
-				item["Year"] = &types.AttributeValueMemberN{Value: "1992"}
-				item["Blurb"] = &types.AttributeValueMemberS{Value: "a random blurb"}
+				item["id"] = &types.AttributeValueMemberS{Value: "c6767b2d-438b-4d4c-8b1a-659130a640ca"}
+				item["title"] = &types.AttributeValueMemberS{Value: "The Black Echo"}
+				item["year"] = &types.AttributeValueMemberN{Value: "1992"}
+				item["blurb"] = &types.AttributeValueMemberS{Value: "a random blurb"}
 
 				input := &dynamodb.PutItemInput{Item: item, TableName: aws.String("some-table-name")}
 				m.On("PutItem", mock.AnythingOfType("backgroundCtx"), input, mock.Anything).Return(&dynamodb.PutItemOutput{}, errors.New("dynamodb.PutItem error"))
@@ -40,10 +42,10 @@ func TestRepository_Save(t *testing.T) {
 			name: "when successfully saved book",
 			setup: func(m *MockDynamoDBClient) {
 				item := map[string]types.AttributeValue{}
-				item["Id"] = &types.AttributeValueMemberS{Value: "c6767b2d-438b-4d4c-8b1a-659130a640ca"}
-				item["Title"] = &types.AttributeValueMemberS{Value: "The Black Echo"}
-				item["Year"] = &types.AttributeValueMemberN{Value: "1992"}
-				item["Blurb"] = &types.AttributeValueMemberS{Value: "a random blurb"}
+				item["id"] = &types.AttributeValueMemberS{Value: "c6767b2d-438b-4d4c-8b1a-659130a640ca"}
+				item["title"] = &types.AttributeValueMemberS{Value: "The Black Echo"}
+				item["year"] = &types.AttributeValueMemberN{Value: "1992"}
+				item["blurb"] = &types.AttributeValueMemberS{Value: "a random blurb"}
 
 				input := &dynamodb.PutItemInput{Item: item, TableName: aws.String("some-table-name")}
 				m.On("PutItem", mock.AnythingOfType("backgroundCtx"), input, mock.Anything).Return(&dynamodb.PutItemOutput{}, nil)
@@ -71,6 +73,7 @@ func TestRepository_Save(t *testing.T) {
 }
 
 func TestRepository_GetById(t *testing.T) {
+	ctx := context.Background()
 	tests := []struct {
 		name    string
 		setup   func(*MockDynamoDBClient)
@@ -80,37 +83,37 @@ func TestRepository_GetById(t *testing.T) {
 		{
 			name: "when failed to get book",
 			setup: func(m *MockDynamoDBClient) {
-				input := &dynamodb.GetItemInput{TableName: aws.String("some-table-name"), Key: map[string]types.AttributeValue{"Id": &types.AttributeValueMemberS{Value: "a-random-book-id"}}}
-				m.On("GetItem", mock.AnythingOfType("backgroundCtx"), input, mock.Anything).Return(&dynamodb.GetItemOutput{}, assert.AnError)
+				input := &dynamodb.GetItemInput{TableName: aws.String("some-table-name"), Key: map[string]types.AttributeValue{"id": &types.AttributeValueMemberS{Value: "a-random-book-id"}}}
+				m.On("GetItem", ctx, input, mock.Anything).Return(&dynamodb.GetItemOutput{}, assert.AnError)
 			},
 			wantErr: fmt.Errorf("%w. failed to fetch book, id: %s, err: %w", ErrDynamodb, "a-random-book-id", assert.AnError),
 		},
 		{
 			name: "when book not found",
 			setup: func(m *MockDynamoDBClient) {
-				input := &dynamodb.GetItemInput{TableName: aws.String("some-table-name"), Key: map[string]types.AttributeValue{"Id": &types.AttributeValueMemberS{Value: "a-random-book-id"}}}
-				m.On("GetItem", mock.AnythingOfType("backgroundCtx"), input, mock.Anything).Return(&dynamodb.GetItemOutput{}, nil)
+				input := &dynamodb.GetItemInput{TableName: aws.String("some-table-name"), Key: map[string]types.AttributeValue{"id": &types.AttributeValueMemberS{Value: "a-random-book-id"}}}
+				m.On("GetItem", ctx, input, mock.Anything).Return(&dynamodb.GetItemOutput{}, nil)
 			},
 			wantErr: fmt.Errorf("%w. book id: %s", ErrNotFound, "a-random-book-id"),
 		},
 		{
 			name: "when failed to marshal output",
 			setup: func(m *MockDynamoDBClient) {
-				input := &dynamodb.GetItemInput{TableName: aws.String("some-table-name"), Key: map[string]types.AttributeValue{"Id": &types.AttributeValueMemberS{Value: "a-random-book-id"}}}
+				input := &dynamodb.GetItemInput{TableName: aws.String("some-table-name"), Key: map[string]types.AttributeValue{"id": &types.AttributeValueMemberS{Value: "a-random-book-id"}}}
 				output := &dynamodb.GetItemOutput{Item: map[string]types.AttributeValue{
 					"id":    &types.AttributeValueMemberS{Value: "book-123"},
 					"title": &types.AttributeValueMemberM{Value: map[string]types.AttributeValue{}},
 				}}
-				m.On("GetItem", mock.AnythingOfType("backgroundCtx"), input, mock.Anything).Return(output, nil)
+				m.On("GetItem", ctx, input, mock.Anything).Return(output, nil)
 			},
-			wantErr: fmt.Errorf("%w. failed to unmarshal book: %w", ErrDynamodb, errors.New("unmarshal failed, cannot unmarshal map into Go value type string")),
+			wantErr: fmt.Errorf("%w. failed to unmarshal book: %w", ErrDynamodb, &attributevalue.UnmarshalTypeError{Value: "map", Type: reflect.TypeOf("string")}),
 		},
 		{
 			name: "when success get book",
 			setup: func(m *MockDynamoDBClient) {
-				input := &dynamodb.GetItemInput{TableName: aws.String("some-table-name"), Key: map[string]types.AttributeValue{"Id": &types.AttributeValueMemberS{Value: "a-random-book-id"}}}
+				input := &dynamodb.GetItemInput{TableName: aws.String("some-table-name"), Key: map[string]types.AttributeValue{"id": &types.AttributeValueMemberS{Value: "a-random-book-id"}}}
 				output := &dynamodb.GetItemOutput{Item: map[string]types.AttributeValue{"id": &types.AttributeValueMemberS{Value: "book-123"}}}
-				m.On("GetItem", mock.AnythingOfType("backgroundCtx"), input, mock.Anything).Return(output, nil)
+				m.On("GetItem", ctx, input, mock.Anything).Return(output, nil)
 			},
 			want: Book{Id: "book-123"},
 		},
@@ -122,12 +125,85 @@ func TestRepository_GetById(t *testing.T) {
 
 			r := NewRepository(mockDynamoDBClient, "some-table-name", nil)
 
-			got, err := r.GetById(context.Background(), "a-random-book-id")
+			got, err := r.GetById(ctx, "a-random-book-id")
 
 			assert.Equal(t, got, tt.want)
-			if tt.wantErr != nil {
-				assert.Equal(t, tt.wantErr.Error(), err.Error())
-			}
+			assert.Equal(t, tt.wantErr, err)
+			mockDynamoDBClient.AssertExpectations(t)
+		})
+	}
+}
+
+func TestRepository_GetByNames(t *testing.T) {
+	ctx := context.Background()
+	tests := []struct {
+		name       string
+		bookTitles []string
+		setup      func(*MockDynamoDBClient)
+		want       []Book
+		wantErr    error
+	}{
+		{
+			name:       "when book titles is empty",
+			bookTitles: []string{},
+			setup:      func(*MockDynamoDBClient) {},
+		},
+		{
+			name:       "when failed to query book",
+			bookTitles: []string{"The Black Echo"},
+			setup: func(m *MockDynamoDBClient) {
+				input := &dynamodb.QueryInput{TableName: aws.String("some-table-name"), IndexName: aws.String("books_title"), KeyConditionExpression: aws.String("title = :title"), ExpressionAttributeValues: map[string]types.AttributeValue{":title": &types.AttributeValueMemberS{Value: "The Black Echo"}}}
+				m.On("Query", ctx, input, mock.Anything).Return(&dynamodb.QueryOutput{}, assert.AnError).Once()
+			},
+			wantErr: fmt.Errorf("%w. failed to fetch book, title: %s, err: %w", ErrDynamodb, "The Black Echo", assert.AnError),
+		},
+		{
+			name:       "when failed to query second book",
+			bookTitles: []string{"The Black Echo", "The Black Ice"},
+			setup: func(m *MockDynamoDBClient) {
+				firstInput := &dynamodb.QueryInput{TableName: aws.String("some-table-name"), IndexName: aws.String("books_title"), KeyConditionExpression: aws.String("title = :title"), ExpressionAttributeValues: map[string]types.AttributeValue{":title": &types.AttributeValueMemberS{Value: "The Black Echo"}}}
+				firstOutput := &dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{{"id": &types.AttributeValueMemberS{Value: "a-random-book-id"}}}}
+				m.On("Query", ctx, firstInput, mock.Anything).Return(firstOutput, nil).Once()
+				secondInput := &dynamodb.QueryInput{TableName: aws.String("some-table-name"), IndexName: aws.String("books_title"), KeyConditionExpression: aws.String("title = :title"), ExpressionAttributeValues: map[string]types.AttributeValue{":title": &types.AttributeValueMemberS{Value: "The Black Ice"}}}
+				m.On("Query", ctx, secondInput, mock.Anything).Return(&dynamodb.QueryOutput{}, assert.AnError).Once()
+			},
+			wantErr: fmt.Errorf("%w. failed to fetch book, title: %s, err: %w", ErrDynamodb, "The Black Ice", assert.AnError),
+		},
+		{
+			name:       "when failed to marshal output",
+			bookTitles: []string{"The Black Echo"},
+			setup: func(m *MockDynamoDBClient) {
+				input := &dynamodb.QueryInput{TableName: aws.String("some-table-name"), IndexName: aws.String("books_title"), KeyConditionExpression: aws.String("title = :title"), ExpressionAttributeValues: map[string]types.AttributeValue{":title": &types.AttributeValueMemberS{Value: "The Black Echo"}}}
+				output := &dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{{"title": &types.AttributeValueMemberM{Value: map[string]types.AttributeValue{}}}}}
+				m.On("Query", ctx, input, mock.Anything).Return(output, nil).Once()
+			},
+			wantErr: fmt.Errorf("%w. failed to unmarshal book: %w", ErrDynamodb, &attributevalue.UnmarshalTypeError{Value: "map", Type: reflect.TypeOf("The Black Echo")}),
+		},
+		{
+			name:       "when successfully get books",
+			bookTitles: []string{"The Black Echo", "The Black Ice"},
+			setup: func(m *MockDynamoDBClient) {
+				firstInput := &dynamodb.QueryInput{TableName: aws.String("some-table-name"), IndexName: aws.String("books_title"), KeyConditionExpression: aws.String("title = :title"), ExpressionAttributeValues: map[string]types.AttributeValue{":title": &types.AttributeValueMemberS{Value: "The Black Echo"}}}
+				firstOutput := &dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{{"id": &types.AttributeValueMemberS{Value: "the-black-echo-id"}, "title": &types.AttributeValueMemberS{Value: "The Black Echo"}}}}
+				m.On("Query", ctx, firstInput, mock.Anything).Return(firstOutput, nil).Once()
+				secondInput := &dynamodb.QueryInput{TableName: aws.String("some-table-name"), IndexName: aws.String("books_title"), KeyConditionExpression: aws.String("title = :title"), ExpressionAttributeValues: map[string]types.AttributeValue{":title": &types.AttributeValueMemberS{Value: "The Black Ice"}}}
+				secondOutput := &dynamodb.QueryOutput{Items: []map[string]types.AttributeValue{{"id": &types.AttributeValueMemberS{Value: "the-black-ice-id"}, "title": &types.AttributeValueMemberS{Value: "The Black Ice"}}}}
+				m.On("Query", ctx, secondInput, mock.Anything).Return(secondOutput, nil).Once()
+			},
+			want: []Book{{Id: "the-black-echo-id", Title: "The Black Echo"}, {Id: "the-black-ice-id", Title: "The Black Ice"}},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockDynamoDBClient := new(MockDynamoDBClient)
+			tt.setup(mockDynamoDBClient)
+
+			r := NewRepository(mockDynamoDBClient, "some-table-name", nil)
+
+			got, err := r.GetByNames(ctx, tt.bookTitles)
+
+			assert.Equal(t, got, tt.want)
+			assert.Equal(t, tt.wantErr, err)
 			mockDynamoDBClient.AssertExpectations(t)
 		})
 	}
@@ -145,4 +221,9 @@ func (m *MockDynamoDBClient) PutItem(ctx context.Context, params *dynamodb.PutIt
 func (m *MockDynamoDBClient) GetItem(ctx context.Context, params *dynamodb.GetItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.GetItemOutput, error) {
 	args := m.Called(ctx, params, optFns)
 	return args.Get(0).(*dynamodb.GetItemOutput), args.Error(1)
+}
+
+func (m *MockDynamoDBClient) Query(ctx context.Context, params *dynamodb.QueryInput, optFns ...func(*dynamodb.Options)) (*dynamodb.QueryOutput, error) {
+	args := m.Called(ctx, params, optFns)
+	return args.Get(0).(*dynamodb.QueryOutput), args.Error(1)
 }

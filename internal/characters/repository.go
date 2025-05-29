@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/ggoulart/michael-connelly-api/internal/books"
 	"github.com/google/uuid"
 )
 
@@ -18,6 +19,7 @@ var ErrNotFound = errors.New("not found")
 type DynamoDBClient interface {
 	PutItem(ctx context.Context, params *dynamodb.PutItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.PutItemOutput, error)
 	GetItem(ctx context.Context, params *dynamodb.GetItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.GetItemOutput, error)
+	UpdateItem(ctx context.Context, params *dynamodb.UpdateItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.UpdateItemOutput, error)
 }
 
 type Repository struct {
@@ -67,6 +69,29 @@ func (r *Repository) GetById(ctx context.Context, characterID string) (Character
 		return Character{}, fmt.Errorf("%w. failed to unmarshal character: %w", ErrDynamodb, err)
 	}
 	return character, nil
+}
+
+func (r *Repository) AddBooks(ctx context.Context, characterID string, booksList []books.Book) (Character, error) {
+	var bookIDs []types.AttributeValue
+	for _, b := range booksList {
+		bookIDs = append(bookIDs, &types.AttributeValueMemberS{Value: b.Id})
+	}
+
+	_, err := r.dynamoDB.UpdateItem(ctx, &dynamodb.UpdateItemInput{
+		TableName:        aws.String(r.tableName),
+		Key:              map[string]types.AttributeValue{"id": &types.AttributeValueMemberS{Value: characterID}},
+		UpdateExpression: aws.String("SET books = list_append(if_not_exists(books, :empty_list), :new_books)"),
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":new_books":  &types.AttributeValueMemberL{Value: bookIDs},
+			":empty_list": &types.AttributeValueMemberL{Value: []types.AttributeValue{}},
+		},
+		ReturnValues: types.ReturnValueNone,
+	})
+	if err != nil {
+		return Character{}, fmt.Errorf("%w. failed to add books to character: %w", ErrDynamodb, err)
+	}
+
+	return Character{}, nil
 }
 
 type DBCharacter struct {

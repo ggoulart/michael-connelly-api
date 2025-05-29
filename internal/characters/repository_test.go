@@ -147,3 +147,8 @@ func (m *MockDynamoDBClient) GetItem(ctx context.Context, params *dynamodb.GetIt
 	args := m.Called(ctx, params, optFns)
 	return args.Get(0).(*dynamodb.GetItemOutput), args.Error(1)
 }
+
+func (m *MockDynamoDBClient) UpdateItem(ctx context.Context, params *dynamodb.UpdateItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.UpdateItemOutput, error) {
+	args := m.Called(ctx, params, optFns)
+	return args.Get(0).(*dynamodb.UpdateItemOutput), args.Error(1)
+}

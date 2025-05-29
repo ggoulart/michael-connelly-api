@@ -47,7 +47,7 @@ func main() {
 	booksController := books.NewController(booksService)
 
 	charactersRepository := characters.NewRepository(dynamodbClient, characterTable, uuidGenerator)
-	charactersService := characters.NewService(charactersRepository)
+	charactersService := characters.NewService(charactersRepository, booksRepository)
 	charactersController := characters.NewController(charactersService)
 
 	r := router(booksController, charactersController, healthController)
@@ -76,6 +76,7 @@ func router(booksController *books.Controller, charactersController *characters.
 	character := r.Group("/characters")
 	character.POST("/", charactersController.Create)
 	character.GET("/:characterID", charactersController.GetById)
+	character.POST("/:characterID/books", charactersController.AddBooks)
 
 	return r
 }

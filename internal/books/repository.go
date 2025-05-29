@@ -18,6 +18,7 @@ var ErrNotFound = errors.New("not found")
 type DynamoDBClient interface {
 	PutItem(ctx context.Context, params *dynamodb.PutItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.PutItemOutput, error)
 	GetItem(ctx context.Context, params *dynamodb.GetItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.GetItemOutput, error)
+	Query(ctx context.Context, params *dynamodb.QueryInput, optFns ...func(*dynamodb.Options)) (*dynamodb.QueryOutput, error)
 }
 
 type Repository struct {
@@ -52,7 +53,7 @@ func (r *Repository) Save(ctx context.Context, book Book) (Book, error) {
 func (r *Repository) GetById(ctx context.Context, bookID string) (Book, error) {
 	output, err := r.dynamoDB.GetItem(ctx, &dynamodb.GetItemInput{
 		TableName: aws.String(r.tableName),
-		Key:       map[string]types.AttributeValue{"Id": &types.AttributeValueMemberS{Value: bookID}},
+		Key:       map[string]types.AttributeValue{"id": &types.AttributeValueMemberS{Value: bookID}},
 	})
 	if err != nil {
 		return Book{}, fmt.Errorf("%w. failed to fetch book, id: %s, err: %w", ErrDynamodb, bookID, err)
@@ -70,6 +71,32 @@ func (r *Repository) GetById(ctx context.Context, bookID string) (Book, error) {
 	return book, nil
 }
 
+func (r *Repository) GetByNames(ctx context.Context, bookTitles []string) ([]Book, error) {
+	var books []Book
+
+	for _, title := range bookTitles {
+		output, err := r.dynamoDB.Query(ctx, &dynamodb.QueryInput{
+			TableName:                 aws.String(r.tableName),
+			IndexName:                 aws.String("books_title"),
+			KeyConditionExpression:    aws.String("title = :title"),
+			ExpressionAttributeValues: map[string]types.AttributeValue{":title": &types.AttributeValueMemberS{Value: title}},
+		})
+		if err != nil {
+			return nil, fmt.Errorf("%w. failed to fetch book, title: %s, err: %w", ErrDynamodb, title, err)
+		}
+
+		var dbBook DBBook
+		err = attributevalue.UnmarshalMap(output.Items[0], &dbBook)
+		if err != nil {
+			return nil, fmt.Errorf("%w. failed to unmarshal book: %w", ErrDynamodb, err)
+		}
+
+		books = append(books, dbBook.ToBook())
+	}
+
+	return books, nil
+}
+
 type DBBook struct {
 	ID    string `dynamodbav:"id"`
 	Title string `dynamodbav:"title"`
@@ -83,5 +110,14 @@ func NewDBBook(book Book) DBBook {
 		Title: book.Title,
 		Year:  book.Year,
 		Blurb: book.Blurb,
+	}
+}
+
+func (b *DBBook) ToBook() Book {
+	return Book{
+		Id:    b.ID,
+		Title: b.Title,
+		Year:  b.Year,
+		Blurb: b.Blurb,
 	}
 }

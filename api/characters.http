@@ -11,3 +11,13 @@ Content-Type: application/json
 ### GET characters by id
 GET http://{{address}}/characters/cd137a15-a129-47e0-8365-8b395c5b48e5
 Content-Type: application/json
+
+### POST character add book
+POST http://{{address}}/characters/0d15c166-65ab-4cd9-b582-8c9939648cd2/books
+Content-Type: application/json
+
+{
+  "bookTitles": [
+    "The Black Echo"
+  ]
+}
