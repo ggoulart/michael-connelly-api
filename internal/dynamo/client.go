@@ -1,0 +1,105 @@
+package dynamo
+
+import (
+	"context"
+	"errors"
+	"fmt"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/google/uuid"
+)
+
+var ErrDynamodb = errors.New("dynamodb error")
+var ErrNotFound = errors.New("not found")
+
+type Dynamodb interface {
+	GetItem(ctx context.Context, input *dynamodb.GetItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.GetItemOutput, error)
+	UpdateItem(ctx context.Context, input *dynamodb.UpdateItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.UpdateItemOutput, error)
+	TransactWriteItems(ctx context.Context, input *dynamodb.TransactWriteItemsInput, optFns ...func(*dynamodb.Options)) (*dynamodb.TransactWriteItemsOutput, error)
+}
+
+var uniqueKeyTable = "unique_keys"
+
+type Client struct {
+	dynamoDB Dynamodb
+	uuidGen  func() uuid.UUID
+}
+
+func NewClient(dynamodb Dynamodb, uuidGen func() uuid.UUID) *Client {
+	return &Client{dynamoDB: dynamodb, uuidGen: uuidGen}
+}
+
+func (c *Client) Save(ctx context.Context, tableName string, item map[string]types.AttributeValue, uniqueValue string) (string, error) {
+	tableID := c.uuidGen().String()
+	item["id"] = &types.AttributeValueMemberS{Value: tableID}
+
+	uniqueKeyItem := map[string]types.AttributeValue{
+		"id":       &types.AttributeValueMemberS{Value: fmt.Sprintf("%s#%s", tableName, uniqueValue)},
+		"table_id": &types.AttributeValueMemberS{Value: tableID},
+	}
+
+	_, err := c.dynamoDB.TransactWriteItems(ctx, &dynamodb.TransactWriteItemsInput{
+		TransactItems: []types.TransactWriteItem{
+			{Put: &types.Put{TableName: aws.String(uniqueKeyTable), Item: uniqueKeyItem, ConditionExpression: aws.String("attribute_not_exists(id)")}},
+			{Put: &types.Put{TableName: aws.String(tableName), Item: item}},
+		},
+	})
+
+	var tce *types.TransactionCanceledException
+	if errors.As(err, &tce) {
+		if len(tce.CancellationReasons) > 0 && tce.CancellationReasons[0].Code != nil {
+			if *tce.CancellationReasons[0].Code == "ConditionalCheckFailed" {
+				return "", nil
+			}
+		}
+	}
+	if err != nil {
+		return "", fmt.Errorf("%w. failed to save character: %w", ErrDynamodb, err)
+	}
+
+	return tableID, nil
+}
+
+func (c *Client) GetByID(ctx context.Context, tableName string, id string) (map[string]types.AttributeValue, error) {
+	output, err := c.dynamoDB.GetItem(ctx, &dynamodb.GetItemInput{
+		TableName: aws.String(tableName),
+		Key:       map[string]types.AttributeValue{"id": &types.AttributeValueMemberS{Value: id}},
+	})
+	if err != nil {
+		return nil, fmt.Errorf("%w. failed to get item id: %s from table: %s. err: %w", ErrDynamodb, id, tableName, err)
+	}
+
+	if output.Item == nil {
+		return nil, ErrNotFound
+	}
+
+	return output.Item, nil
+}
+
+func (c *Client) GetByUniqueKey(ctx context.Context, tableName string, value string) (map[string]types.AttributeValue, error) {
+	ukItem, err := c.GetByID(ctx, uniqueKeyTable, fmt.Sprintf("%s#%s", tableName, value))
+	if err != nil {
+		return nil, err
+	}
+
+	var uniqueKeys UniqueKeys
+	err = attributevalue.UnmarshalMap(ukItem, &uniqueKeys)
+	if err != nil {
+		return nil, fmt.Errorf("%w. failed to unmarshal. table: %s, value: %s. err: %w", ErrDynamodb, tableName, value, err)
+	}
+
+	item, err := c.GetByID(ctx, tableName, uniqueKeys.TableID)
+	if err != nil {
+		return nil, err
+	}
+
+	return item, nil
+}
+
+type UniqueKeys struct {
+	ID      string `dynamodbav:"id"`
+	TableID string `dynamodbav:"table_id"`
+}

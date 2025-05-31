@@ -75,7 +75,7 @@ type BookResponse struct {
 
 func NewBookResponse(book Book) BookResponse {
 	return BookResponse{
-		ID:    book.Id,
+		ID:    book.ID,
 		Title: book.Title,
 		Year:  book.Year,
 		Blurb: book.Blurb,

@@ -42,7 +42,7 @@ func TestController_Create(t *testing.T) {
 			reqBody: `{"title": "The Black Echo", "year": 1992, "blurb": "a random blurb"}`,
 			setup: func(m *ManagerMock) {
 				reqBook := Book{Title: "The Black Echo", Year: 1992, Blurb: "a random blurb"}
-				respBook := Book{Id: "a-string", Title: "The Black Echo", Year: 1992, Blurb: "a random blurb"}
+				respBook := Book{ID: "a-string", Title: "The Black Echo", Year: 1992, Blurb: "a random blurb"}
 				m.On("Create", mock.Anything, reqBook).Return(respBook, nil).Once()
 			},
 			expectedCode: http.StatusCreated,
@@ -97,7 +97,7 @@ func TestController_GetById(t *testing.T) {
 			name: "when get book service is successful",
 			setup: func(m *ManagerMock, ctx *gin.Context) {
 				ctx.Params = gin.Params{{Key: "bookID", Value: "a-book-id"}}
-				respBook := Book{Id: "a-string", Title: "The Black Echo", Year: 1992, Blurb: "a random blurb"}
+				respBook := Book{ID: "a-string", Title: "The Black Echo", Year: 1992, Blurb: "a random blurb"}
 				m.On("GetById", mock.Anything, "a-book-id").Return(respBook, nil).Once()
 			},
 			expectedCode: http.StatusOK,

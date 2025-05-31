@@ -1,12 +1,12 @@
 @address = 127.0.0.1:3000
 
 #### POST create characters
-#POST http://{{address}}/characters
-#Content-Type: application/json
-#
-#{
-#  "name": "Harry Bosch"
-#}
+POST http://{{address}}/characters
+Content-Type: application/json
+
+{
+  "name": "Harry Bosch"
+}
 
 ### GET characters by name
 GET http://{{address}}/characters?name=Harry Bosch

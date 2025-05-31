@@ -13,6 +13,7 @@ import (
 	ginadapter "github.com/awslabs/aws-lambda-go-api-proxy/gin"
 	"github.com/ggoulart/michael-connelly-api/internal/books"
 	"github.com/ggoulart/michael-connelly-api/internal/characters"
+	"github.com/ggoulart/michael-connelly-api/internal/dynamo"
 	"github.com/ggoulart/michael-connelly-api/internal/health"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -29,24 +30,26 @@ func main() {
 		log.Fatalf("failed to load config: %v", err)
 	}
 
-	dynamodbClient := dynamodb.NewFromConfig(cfg, func(o *dynamodb.Options) {
+	awsDynamoDBClient := dynamodb.NewFromConfig(cfg, func(o *dynamodb.Options) {
 		o.BaseEndpoint = aws.String("http://localhost:8000")
 		o.Credentials = credentials.NewStaticCredentialsProvider("local", "local", "local")
 	})
-	_, err = dynamodbClient.ListTables(context.Background(), &dynamodb.ListTablesInput{})
+	_, err = awsDynamoDBClient.ListTables(context.Background(), &dynamodb.ListTablesInput{})
 	if err != nil {
 		log.Fatalf("failed to ping DynamoDB: %v", err)
 	}
 
 	uuidGenerator := uuid.New
 
+	dynamodbClient := dynamo.NewClient(awsDynamoDBClient, uuidGenerator)
+
 	healthController := health.NewController()
 
-	booksRepository := books.NewRepository(dynamodbClient, booksTable, uuidGenerator)
+	booksRepository := books.NewRepository(dynamodbClient, booksTable)
 	booksService := books.NewService(booksRepository)
 	booksController := books.NewController(booksService)
 
-	charactersRepository := characters.NewRepository(dynamodbClient, characterTable, uuidGenerator)
+	charactersRepository := characters.NewRepository(dynamodbClient, characterTable)
 	charactersService := characters.NewService(charactersRepository, booksRepository)
 	charactersController := characters.NewController(charactersService)
 
@@ -77,7 +80,6 @@ func router(booksController *books.Controller, charactersController *characters.
 	character.POST("/", charactersController.Create)
 	character.GET("/", charactersController.GetByName)
 	character.GET("/:characterID", charactersController.GetById)
-	character.POST("/:characterID/books", charactersController.AddBooks)
 
 	return r
 }

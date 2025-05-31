@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"strings"
 	"testing"
 
@@ -43,7 +44,7 @@ func TestController_Create(t *testing.T) {
 			reqBody: `{"name":"Harry Bosch"}`,
 			setup: func(m *ManagerMock) {
 				reqCharacter := Character{Name: "Harry Bosch"}
-				respCharacter := Character{Id: "random-id", Name: "Harry Bosch", Books: []books.Book{{Title: "random-book-title"}}}
+				respCharacter := Character{ID: "random-id", Name: "Harry Bosch", Books: []books.Book{{Title: "random-book-title"}}}
 				m.On("Create", mock.Anything, reqCharacter).Return(respCharacter, nil).Once()
 			},
 			expectedCode: http.StatusCreated,
@@ -75,19 +76,19 @@ func TestController_Create(t *testing.T) {
 func TestController_GetById(t *testing.T) {
 	tests := []struct {
 		name         string
-		setup        func(*ManagerMock, *gin.Context)
+		setup        func(*gin.Context, *ManagerMock)
 		expectedCode int
 		respBody     string
 	}{
 		{
 			name:         "when missing character id req param",
-			setup:        func(_ *ManagerMock, _ *gin.Context) {},
+			setup:        func(_ *gin.Context, _ *ManagerMock) {},
 			expectedCode: http.StatusBadRequest,
 			respBody:     `{"error":"characterID is required"}`,
 		},
 		{
 			name: "when get character service fails",
-			setup: func(m *ManagerMock, ctx *gin.Context) {
+			setup: func(ctx *gin.Context, m *ManagerMock) {
 				ctx.Params = gin.Params{{Key: "characterID", Value: "a-character-id"}}
 				m.On("GetById", mock.Anything, "a-character-id").Return(Character{}, assert.AnError).Once()
 			},
@@ -96,9 +97,9 @@ func TestController_GetById(t *testing.T) {
 		},
 		{
 			name: "when get character service is successful",
-			setup: func(m *ManagerMock, ctx *gin.Context) {
+			setup: func(ctx *gin.Context, m *ManagerMock) {
 				ctx.Params = gin.Params{{Key: "characterID", Value: "a-character-id"}}
-				respCharacter := Character{Id: "a-character-id", Name: "Harry Bosch"}
+				respCharacter := Character{ID: "a-character-id", Name: "Harry Bosch"}
 				m.On("GetById", mock.Anything, "a-character-id").Return(respCharacter, nil).Once()
 			},
 			expectedCode: http.StatusOK,
@@ -114,9 +115,65 @@ func TestController_GetById(t *testing.T) {
 			ctx, _ := gin.CreateTestContext(recorder)
 			ctx.Request = httptest.NewRequest(http.MethodGet, "/characters/character-id", nil)
 
-			tt.setup(m, ctx)
+			tt.setup(ctx, m)
 
 			c.GetById(ctx)
+
+			ctx.Writer.WriteHeaderNow()
+
+			assert.Equal(t, tt.expectedCode, recorder.Code)
+			assert.Equal(t, tt.respBody, recorder.Body.String())
+			m.AssertExpectations(t)
+		})
+	}
+}
+
+func TestController_GetByName(t *testing.T) {
+	tests := []struct {
+		name           string
+		nameQueryParam string
+		setup          func(*ManagerMock)
+		expectedCode   int
+		respBody       string
+	}{
+		{
+			name:         "when missing character name req param",
+			setup:        func(_ *ManagerMock) {},
+			expectedCode: http.StatusBadRequest,
+			respBody:     `{"error":"query param 'name' is required"}`,
+		},
+		{
+			name:           "when get character service fails",
+			nameQueryParam: "Harry Bosch",
+			setup: func(m *ManagerMock) {
+				m.On("GetByName", mock.Anything, "Harry Bosch").Return(Character{}, assert.AnError).Once()
+			},
+			expectedCode: http.StatusInternalServerError,
+			respBody:     `{"error":"assert.AnError general error for testing"}`,
+		},
+		{
+			name:           "when get character service is successful",
+			nameQueryParam: "Harry Bosch",
+			setup: func(m *ManagerMock) {
+				character := Character{ID: "random-id", Name: "Harry Bosch"}
+				m.On("GetByName", mock.Anything, "Harry Bosch").Return(character, nil).Once()
+			},
+			expectedCode: http.StatusOK,
+			respBody:     `{"id":"random-id","name":"Harry Bosch"}`,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			m := new(ManagerMock)
+			c := NewController(m)
+
+			recorder := httptest.NewRecorder()
+			ctx, _ := gin.CreateTestContext(recorder)
+			ctx.Request = httptest.NewRequest(http.MethodGet, "/characters/?name="+url.QueryEscape(tt.nameQueryParam), nil)
+
+			tt.setup(m)
+
+			c.GetByName(ctx)
 
 			ctx.Writer.WriteHeaderNow()
 
@@ -131,6 +188,11 @@ type ManagerMock struct {
 	mock.Mock
 }
 
+func (m *ManagerMock) GetByName(ctx context.Context, characterName string) (Character, error) {
+	args := m.Called(ctx, characterName)
+	return args.Get(0).(Character), args.Error(1)
+}
+
 func (m *ManagerMock) Create(ctx context.Context, character Character) (Character, error) {
 	args := m.Called(ctx, character)
 	return args.Get(0).(Character), args.Error(1)
@@ -138,10 +200,5 @@ func (m *ManagerMock) Create(ctx context.Context, character Character) (Characte
 
 func (m *ManagerMock) GetById(ctx context.Context, characterID string) (Character, error) {
 	args := m.Called(ctx, characterID)
-	return args.Get(0).(Character), args.Error(1)
-}
-
-func (m *ManagerMock) AddBooks(ctx context.Context, characterID string, bookTitles []string) (Character, error) {
-	args := m.Called(ctx, characterID, bookTitles)
 	return args.Get(0).(Character), args.Error(1)
 }

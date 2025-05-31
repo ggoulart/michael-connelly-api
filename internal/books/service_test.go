@@ -26,10 +26,10 @@ func TestService_Create(t *testing.T) {
 		{
 			name: "successfully saved book",
 			setup: func(s *StorageMock) {
-				savedBook := Book{Id: "c6767b2d-438b-4d4c-8b1a-659130a640ca", Title: "The Black Echo", Year: 1992, Blurb: "a random blurb"}
+				savedBook := Book{ID: "c6767b2d-438b-4d4c-8b1a-659130a640ca", Title: "The Black Echo", Year: 1992, Blurb: "a random blurb"}
 				s.On("Save", mock.AnythingOfType("backgroundCtx"), receivedBook).Return(savedBook, nil)
 			},
-			want: Book{Id: "c6767b2d-438b-4d4c-8b1a-659130a640ca", Title: "The Black Echo", Year: 1992, Blurb: "a random blurb"},
+			want: Book{ID: "c6767b2d-438b-4d4c-8b1a-659130a640ca", Title: "The Black Echo", Year: 1992, Blurb: "a random blurb"},
 		},
 	}
 	for _, tt := range tests {
@@ -64,10 +64,10 @@ func TestService_GetById(t *testing.T) {
 		{
 			name: "successfully saved book",
 			setup: func(s *StorageMock) {
-				returnedBook := Book{Id: "c6767b2d-438b-4d4c-8b1a-659130a640ca", Title: "The Black Echo", Year: 1992, Blurb: "a random blurb"}
+				returnedBook := Book{ID: "c6767b2d-438b-4d4c-8b1a-659130a640ca", Title: "The Black Echo", Year: 1992, Blurb: "a random blurb"}
 				s.On("GetById", mock.AnythingOfType("backgroundCtx"), "a-random-book-id").Return(returnedBook, nil)
 			},
-			want: Book{Id: "c6767b2d-438b-4d4c-8b1a-659130a640ca", Title: "The Black Echo", Year: 1992, Blurb: "a random blurb"},
+			want: Book{ID: "c6767b2d-438b-4d4c-8b1a-659130a640ca", Title: "The Black Echo", Year: 1992, Blurb: "a random blurb"},
 		},
 	}
 	for _, tt := range tests {

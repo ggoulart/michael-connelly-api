@@ -11,7 +11,6 @@ type Manager interface {
 	Create(ctx context.Context, character Character) (Character, error)
 	GetById(ctx context.Context, characterID string) (Character, error)
 	GetByName(ctx context.Context, characterName string) (Character, error)
-	AddBooks(ctx context.Context, characterID string, bookTitles []string) (Character, error)
 }
 
 type Controller struct {
@@ -54,28 +53,6 @@ func (c *Controller) GetById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, NewCharacterResponse(character))
 }
 
-func (c *Controller) AddBooks(ctx *gin.Context) {
-	characterID := ctx.Param("characterID")
-	if characterID == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "characterID is required"})
-		return
-	}
-
-	var addBooksRequest AddBooksRequest
-	if err := ctx.BindJSON(&addBooksRequest); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
-		return
-	}
-
-	character, err := c.manager.AddBooks(ctx, characterID, addBooksRequest.BookTitles)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	ctx.JSON(http.StatusOK, NewCharacterResponse(character))
-}
-
 func (c *Controller) GetByName(ctx *gin.Context) {
 	name := ctx.Query("name")
 	if name == "" {
@@ -102,10 +79,6 @@ func (r *CharacterRequest) ToCharacter() Character {
 	}
 }
 
-type AddBooksRequest struct {
-	BookTitles []string `json:"bookTitles"`
-}
-
 type CharacterResponse struct {
 	ID          string   `json:"id,omitempty"`
 	Name        string   `json:"name"`
@@ -119,7 +92,7 @@ func NewCharacterResponse(character Character) CharacterResponse {
 	}
 
 	return CharacterResponse{
-		ID:          character.Id,
+		ID:          character.ID,
 		Name:        character.Name,
 		BooksTitles: booksTitles,
 	}

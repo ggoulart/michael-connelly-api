@@ -1,7 +1,7 @@
 package books
 
 type Book struct {
-	Id    string
+	ID    string
 	Title string
 	Year  int
 	Blurb string
