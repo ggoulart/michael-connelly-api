@@ -2,6 +2,8 @@ package characters
 
 import (
 	"context"
+
+	"github.com/ggoulart/michael-connelly-api/internal/books"
 )
 
 type StorageCharacter interface {
@@ -10,15 +12,33 @@ type StorageCharacter interface {
 	GetByName(ctx context.Context, characterName string) (Character, error)
 }
 
+type StorageBook interface {
+	GetByTitle(ctx context.Context, bookTitle string) (books.Book, error)
+}
+
 type Service struct {
 	storageCharacter StorageCharacter
+	storageBook      StorageBook
 }
 
-func NewService(storageCharacter StorageCharacter) *Service {
-	return &Service{storageCharacter: storageCharacter}
+func NewService(storageCharacter StorageCharacter, storageBook StorageBook) *Service {
+	return &Service{storageCharacter: storageCharacter, storageBook: storageBook}
 }
 
-func (s *Service) Create(ctx context.Context, character Character) (Character, error) {
+func (s *Service) Create(ctx context.Context, character Character, bookTitles []string) (Character, error) {
+	booksList := []books.Book{}
+
+	for _, bookTitle := range bookTitles {
+		book, err := s.storageBook.GetByTitle(ctx, bookTitle)
+		if err != nil {
+			return Character{}, err
+		}
+
+		booksList = append(booksList, book)
+	}
+
+	character.Books = booksList
+
 	savedCharacter, err := s.storageCharacter.Save(ctx, character)
 	if err != nil {
 		return Character{}, err

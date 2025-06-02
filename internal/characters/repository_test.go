@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/ggoulart/michael-connelly-api/internal/books"
+	"github.com/ggoulart/michael-connelly-api/internal/dynamo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -22,6 +23,19 @@ func TestRepository_Save(t *testing.T) {
 		wantErr error
 	}{
 		{
+			name: "when failed to save character because already exists",
+			setup: func(m *MockDynamoDBClient) {
+				item := map[string]types.AttributeValue{}
+				item["id"] = &types.AttributeValueMemberS{Value: ""}
+				item["name"] = &types.AttributeValueMemberS{Value: "Harry Bosch"}
+				item["books"] = &types.AttributeValueMemberL{Value: []types.AttributeValue{&types.AttributeValueMemberS{Value: "book-id-1"}, &types.AttributeValueMemberS{Value: "book-id-2"}}}
+				m.On("Save", ctx, "some-table-name", item, "Harry Bosch").Return("", dynamo.ErrDuplicated).Once()
+				output := map[string]types.AttributeValue{"id": &types.AttributeValueMemberS{Value: "random-id"}, "name": &types.AttributeValueMemberS{Value: "Harry Bosch"}}
+				m.On("GetByUniqueKey", ctx, "some-table-name", "Harry Bosch").Return(output, nil).Once()
+			},
+			want: Character{ID: "random-id", Name: "Harry Bosch"},
+		},
+		{
 			name: "when failed to save character",
 			setup: func(m *MockDynamoDBClient) {
 				item := map[string]types.AttributeValue{}
@@ -30,7 +44,6 @@ func TestRepository_Save(t *testing.T) {
 				item["books"] = &types.AttributeValueMemberL{Value: []types.AttributeValue{&types.AttributeValueMemberS{Value: "book-id-1"}, &types.AttributeValueMemberS{Value: "book-id-2"}}}
 				m.On("Save", ctx, "some-table-name", item, "Harry Bosch").Return("", assert.AnError).Once()
 			},
-			want:    Character{},
 			wantErr: assert.AnError,
 		},
 		{
@@ -83,7 +96,7 @@ func TestRepository_GetById(t *testing.T) {
 				item := map[string]types.AttributeValue{"id": &types.AttributeValueMemberS{Value: "character-123"}, "name": &types.AttributeValueMemberM{Value: map[string]types.AttributeValue{}}}
 				m.On("GetByID", ctx, "some-table-name", "a-random-character-id").Return(item, nil)
 			},
-			wantErr: fmt.Errorf("%w. failed to unmarshal character: %w", ErrDynamodb, &attributevalue.UnmarshalTypeError{Value: "map", Type: reflect.TypeOf("string")}),
+			wantErr: fmt.Errorf("failed to unmarshal character: %w", &attributevalue.UnmarshalTypeError{Value: "map", Type: reflect.TypeOf("string")}),
 		},
 		{
 			name: "when success get character",
@@ -131,7 +144,7 @@ func TestRepository_GetByName(t *testing.T) {
 				item := map[string]types.AttributeValue{"name": &types.AttributeValueMemberM{Value: map[string]types.AttributeValue{}}}
 				m.On("GetByUniqueKey", ctx, "table-name", "Harry Bosch").Return(item, nil)
 			},
-			wantErr: fmt.Errorf("%w. failed to unmarshal character: %w", ErrDynamodb, &attributevalue.UnmarshalTypeError{Value: "map", Type: reflect.TypeOf("string")}),
+			wantErr: fmt.Errorf("failed to unmarshal character: %w", &attributevalue.UnmarshalTypeError{Value: "map", Type: reflect.TypeOf("string")}),
 		},
 		{
 			name: "when success get character",

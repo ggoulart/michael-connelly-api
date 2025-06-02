@@ -1,25 +1,11 @@
 @address = 127.0.0.1:3000
 
-#### POST create characters
+#### POST create Harry Bosch
 POST http://{{address}}/characters
 Content-Type: application/json
 
 {
-  "name": "Harry Bosch"
-}
-
-### GET characters by name
-GET http://{{address}}/characters?name=Harry Bosch
-Content-Type: application/json
-
-> {% client.global.set("characterID", response.body.id); %}
-
-
-### POST character add book
-POST http://{{address}}/characters/{{characterID}}/books
-Content-Type: application/json
-
-{
+  "name": "Harry Bosch",
   "bookTitles": [
     "The Black Echo",
     "The Black Ice",
@@ -29,6 +15,140 @@ Content-Type: application/json
     "Angels Flight",
     "A Darkness More Than Night",
     "City Of Bones",
-    "Lost Light"
+    "Lost Light",
+    "The Narrows",
+    "The Closers",
+    "Echo Park",
+    "The Overlook",
+    "Nine Dragons",
+    "The Drop",
+    "The Black Box",
+    "The Burning Room",
+    "The Crossing",
+    "The Wrong Side Of Goodbye",
+    "Two Kinds Of Truth",
+    "Dark Sacred Night",
+    "The Night Fire",
+    "The Dark Hours",
+    "Desert Star",
+    "The Waiting",
+    "The Brass Verdict",
+    "The Reversal",
+    "The Law Of Innocence",
+    "Resurrection Walk",
+    "The Fifth Witness",
+    "The Gods of Guilt"
+  ]
+}
+
+### POST create Mickey Haller
+POST http://{{address}}/characters
+Content-Type: application/json
+
+{
+  "name": "Mickey Haller",
+  "bookTitles": [
+    "The Lincoln Lawyer",
+    "The Brass Verdict",
+    "The Reversal",
+    "The Fifth Witness",
+    "The Gods of Guilt",
+    "The Law Of Innocence",
+    "Resurrection Walk",
+    "The Proving Ground",
+    "Nine Dragons",
+    "The Crossing",
+    "The Wrong Side Of Goodbye",
+    "Two Kinds Of Truth",
+    "The Night Fire",
+    "Desert Star"
+  ]
+}
+
+### POST create Renée Ballard
+POST http://{{address}}/characters
+Content-Type: application/json
+
+{
+  "name": "Renée Ballard",
+  "bookTitles": [
+    "The Late Show",
+    "Dark Sacred Night",
+    "The Night Fire",
+    "The Dark Hours",
+    "Desert Star",
+    "The Waiting",
+    "Resurrection Walk"
+  ]
+}
+
+### POST create Jack McEvoy
+POST http://{{address}}/characters
+Content-Type: application/json
+
+{
+  "name": "Jack McEvoy",
+  "bookTitles": [
+    "The Poet",
+    "The Scarecrow",
+    "Fair Warning",
+    "The Proving Ground",
+    "A Darkness More Than Night",
+    "The Brass Verdict"
+  ]
+}
+
+### POST create Rachel Walling
+POST http://{{address}}/characters
+Content-Type: application/json
+
+{
+  "name": "Rachel Walling",
+  "bookTitles": [
+    "The Poet",
+    "The Narrows",
+    "Echo Park",
+    "The Overlook",
+    "The Scarecrow",
+    "Fair Warning",
+    "The Reversal",
+    "The Black Box",
+    "The Burning Room"
+  ]
+}
+
+#### POST create Terry McCaleb
+POST http://{{address}}/characters
+Content-Type: application/json
+
+{
+  "name": "Terry McCaleb",
+  "bookTitles": [
+    "Blood Work",
+    "A Darkness More Than Night",
+    "The Narrows"
+  ]
+}
+
+### POST create Cassie Black
+POST http://{{address}}/characters
+Content-Type: application/json
+
+{
+  "name": "Cassie Black",
+  "bookTitles": [
+    "Void Moon",
+    "The Narrows"
+  ]
+}
+
+### POST create Henry Pierce
+POST http://{{address}}/characters
+Content-Type: application/json
+
+{
+  "name": "Henry Pierce",
+  "bookTitles": [
+    "Chasing The Dime"
   ]
 }

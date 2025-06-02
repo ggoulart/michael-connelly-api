@@ -12,8 +12,9 @@ import (
 	"github.com/google/uuid"
 )
 
-var ErrDynamodb = errors.New("dynamodb error")
-var ErrNotFound = errors.New("not found")
+var ErrDynamodb = errors.New("dynamodb: error")
+var ErrNotFound = errors.New("dynamodb: not found")
+var ErrDuplicated = errors.New("dynamodb: duplicated")
 
 type Dynamodb interface {
 	GetItem(ctx context.Context, input *dynamodb.GetItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.GetItemOutput, error)
@@ -36,8 +37,9 @@ func (c *Client) Save(ctx context.Context, tableName string, item map[string]typ
 	tableID := c.uuidGen().String()
 	item["id"] = &types.AttributeValueMemberS{Value: tableID}
 
+	uniqueTableID := fmt.Sprintf("%s#%s", tableName, uniqueValue)
 	uniqueKeyItem := map[string]types.AttributeValue{
-		"id":       &types.AttributeValueMemberS{Value: fmt.Sprintf("%s#%s", tableName, uniqueValue)},
+		"id":       &types.AttributeValueMemberS{Value: uniqueTableID},
 		"table_id": &types.AttributeValueMemberS{Value: tableID},
 	}
 
@@ -52,7 +54,7 @@ func (c *Client) Save(ctx context.Context, tableName string, item map[string]typ
 	if errors.As(err, &tce) {
 		if len(tce.CancellationReasons) > 0 && tce.CancellationReasons[0].Code != nil {
 			if *tce.CancellationReasons[0].Code == "ConditionalCheckFailed" {
-				return "", nil
+				return "", ErrDuplicated
 			}
 		}
 	}
@@ -73,7 +75,7 @@ func (c *Client) GetByID(ctx context.Context, tableName string, id string) (map[
 	}
 
 	if output.Item == nil {
-		return nil, ErrNotFound
+		return nil, fmt.Errorf("%w. id: %s", ErrNotFound, id)
 	}
 
 	return output.Item, nil

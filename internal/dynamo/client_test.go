@@ -35,7 +35,7 @@ func TestClient_Save(t *testing.T) {
 				err := types.TransactionCanceledException{CancellationReasons: []types.CancellationReason{{Code: aws.String("ConditionalCheckFailed")}}}
 				m.On("TransactWriteItems", ctx, input, mock.Anything).Return(&dynamodb.TransactWriteItemsOutput{}, &err).Once()
 			},
-			wantErr: nil,
+			wantErr: ErrDuplicated,
 		},
 		{
 			name: "when failed to save",
@@ -103,7 +103,7 @@ func TestClient_GetByID(t *testing.T) {
 				output := &dynamodb.GetItemOutput{}
 				m.On("GetItem", ctx, input, mock.Anything).Return(output, nil).Once()
 			},
-			wantErr: ErrNotFound,
+			wantErr: fmt.Errorf("%w. id: %s", ErrNotFound, "random-id"),
 		},
 		{
 			name: "when successfully get by id",
@@ -152,7 +152,7 @@ func TestClient_GetByUniqueKey(t *testing.T) {
 				input := &dynamodb.GetItemInput{TableName: aws.String("unique_keys"), Key: map[string]types.AttributeValue{"id": &types.AttributeValueMemberS{Value: "table-name#Harry Bosch"}}}
 				m.On("GetItem", ctx, input, mock.Anything).Return(&dynamodb.GetItemOutput{}, nil).Once()
 			},
-			wantErr: ErrNotFound,
+			wantErr: fmt.Errorf("%w. id: %s", ErrNotFound, "table-name#Harry Bosch"),
 		},
 		{
 			name: "when failed to unmarshal item",

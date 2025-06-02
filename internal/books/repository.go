@@ -7,9 +7,8 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/ggoulart/michael-connelly-api/internal/dynamo"
 )
-
-var ErrDynamodb = errors.New("dynamodb error")
 
 type DynamoDBClient interface {
 	Save(ctx context.Context, tableName string, item map[string]types.AttributeValue, uniqueKey string) (string, error)
@@ -29,11 +28,14 @@ func NewRepository(dynamoDBClient DynamoDBClient, tableName string) *Repository 
 func (r *Repository) Save(ctx context.Context, book Book) (Book, error) {
 	bookItem, err := attributevalue.MarshalMap(NewDBBook(book))
 	if err != nil {
-		return Book{}, fmt.Errorf("%w. failed to marshal book: %w", ErrDynamodb, err)
+		return Book{}, fmt.Errorf("failed to marshal book: %w", err)
 	}
 
 	id, err := r.dynamoDBClient.Save(ctx, r.tableName, bookItem, book.Title)
 	if err != nil {
+		if errors.Is(err, dynamo.ErrDuplicated) {
+			return r.GetByTitle(ctx, book.Title)
+		}
 		return Book{}, err
 	}
 
@@ -51,28 +53,37 @@ func (r *Repository) GetById(ctx context.Context, bookID string) (Book, error) {
 	var dbBook DBBook
 	err = attributevalue.UnmarshalMap(item, &dbBook)
 	if err != nil {
-		return Book{}, fmt.Errorf("%w. failed to unmarshal book: %w", ErrDynamodb, err)
+		return Book{}, fmt.Errorf("failed to unmarshal book: %w", err)
 	}
 
 	return dbBook.ToBook(), nil
 }
 
-func (r *Repository) GetByNames(ctx context.Context, bookTitles []string) ([]Book, error) {
+func (r *Repository) GetByTitle(ctx context.Context, bookTitle string) (Book, error) {
+	item, err := r.dynamoDBClient.GetByUniqueKey(ctx, r.tableName, bookTitle)
+	if err != nil {
+		return Book{}, err
+	}
+
+	var dbBook DBBook
+	err = attributevalue.UnmarshalMap(item, &dbBook)
+	if err != nil {
+		return Book{}, fmt.Errorf("failed to unmarshal book: %w", err)
+	}
+
+	return dbBook.ToBook(), nil
+}
+
+func (r *Repository) GetBookListByTitles(ctx context.Context, bookTitles []string) ([]Book, error) {
 	var booksList []Book
 
 	for _, bookTitle := range bookTitles {
-		item, err := r.dynamoDBClient.GetByUniqueKey(ctx, r.tableName, bookTitle)
+		book, err := r.GetByTitle(ctx, bookTitle)
 		if err != nil {
 			return nil, err
 		}
 
-		var dbBook DBBook
-		err = attributevalue.UnmarshalMap(item, &dbBook)
-		if err != nil {
-			return nil, fmt.Errorf("%w. failed to unmarshal book: %w", ErrDynamodb, err)
-		}
-
-		booksList = append(booksList, dbBook.ToBook())
+		booksList = append(booksList, book)
 	}
 
 	return booksList, nil

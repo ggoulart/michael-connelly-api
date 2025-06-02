@@ -34,18 +34,18 @@ func TestController_Create(t *testing.T) {
 			reqBody: `{"name":"Harry Bosch"}`,
 			setup: func(m *ManagerMock) {
 				reqCharacter := Character{Name: "Harry Bosch"}
-				m.On("Create", mock.Anything, reqCharacter).Return(Character{}, assert.AnError).Once()
+				m.On("Create", mock.Anything, reqCharacter, []string(nil)).Return(Character{}, assert.AnError).Once()
 			},
 			expectedCode: http.StatusInternalServerError,
 			respBody:     `{"error":"assert.AnError general error for testing"}`,
 		},
 		{
 			name:    "when create character is successful",
-			reqBody: `{"name":"Harry Bosch"}`,
+			reqBody: `{"name":"Harry Bosch", "bookTitles": ["random-book-title"]}`,
 			setup: func(m *ManagerMock) {
 				reqCharacter := Character{Name: "Harry Bosch"}
 				respCharacter := Character{ID: "random-id", Name: "Harry Bosch", Books: []books.Book{{Title: "random-book-title"}}}
-				m.On("Create", mock.Anything, reqCharacter).Return(respCharacter, nil).Once()
+				m.On("Create", mock.Anything, reqCharacter, []string{"random-book-title"}).Return(respCharacter, nil).Once()
 			},
 			expectedCode: http.StatusCreated,
 			respBody:     `{"id":"random-id","name":"Harry Bosch","booksTitles":["random-book-title"]}`,
@@ -193,8 +193,8 @@ func (m *ManagerMock) GetByName(ctx context.Context, characterName string) (Char
 	return args.Get(0).(Character), args.Error(1)
 }
 
-func (m *ManagerMock) Create(ctx context.Context, character Character) (Character, error) {
-	args := m.Called(ctx, character)
+func (m *ManagerMock) Create(ctx context.Context, character Character, bookTitle []string) (Character, error) {
+	args := m.Called(ctx, character, bookTitle)
 	return args.Get(0).(Character), args.Error(1)
 }
 

@@ -90,4 +90,323 @@ Content-Type: application/json
   "blurb": "Fed up with the hypocrisy of the LAPD, Harry Bosch has resigned and is forced to find a new way of life. But the life of a retiree doesn’t suit him. He has always devoted himself to justice, and he is still drawn toward protecting —or avenging — those whom the law has failed. When he left the LAPD Bosch took a file with him— the case of a film production assistant murdered four years earlier during a $2 million robbery on a movie set. The LAPD — now operating under post 9/11 rules — think the stolen money was used to finance a terrorist training camp. Thoughts of the original murder victim are lost in the federal zeal, and when it seems the killer will be set free to aid the feds’ terrorist hunt, Bosch quickly finds himself in conflict with both his old colleagues and the FBI. He cannot rest until he finds the killer — with or without a badge. Michael Connelly received the Maltese Falcon Award from the Maltese Falcon Society of Japan for Lost Light, which was judged the best private eye novel published in Japan in the previous year. This is Michael Connelly’s second Falcon Award, his first being for The Black Ice."
 }
 
+### POST create book The Narrows
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "The Narrows",
+  "year": 2004,
+  "blurb": "FBI agent Rachel Walling finally gets the call she’s dreaded for years: the one that tells her the Poet has returned. Years earlier she worked on the famous case tracking down the serial killer who wove lines of poetry into his hideous crimes. Rachel has never forgotten the killer who called himself the Poet — and apparently he has not forgotten her. Harry Bosch gets a call, too. The former LAPD detective hears from an old friend whose husband recently died. The death appeared natural, but this man’s ties to the hunt for the Poet make Harry dig deep — and lead him into a terrifying and unknown world. The Narrows places Harry Bosch in league with Rachel Walling, at odds with the FBI, and squarely in the path of the most ruthless and ingenious murderer in Los Angeles’s history. What follows is a taut and tantalizing mystery that has Harry Bosch racing from the hostile vistas of the Nevada desert to the glittering Las Vegas Strip to the dark corners of Los Angeles. Through it all, Bosch works at his newfound life as father to a young daughter, balancing the deepest love he has ever felt with his own sense of mission and his deep awareness of evil. Here is what Michael Connelly said about The Narrows: “This Harry Bosch novel is the sequel to The Poet — something for years I said I wasn’t interested in doing but could not avoid once the idea came to me. Harry investigates the death of a cop he once worked with and that leads him into the path of the Poet. Terry McCaleb and Rachel Walling make appearances in this book, and if you look hard enough you’ll even catch a glimpse of what Cassie Black (Void Moon) is up to.”"
+}
+
+### POST create book The Closers
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "The Closers",
+  "year": 2005,
+  "blurb": "After three years out of the LAPD, Harry Bosch returns, to find the department a different place from the one he left. A new Police Chief has been brought over from New York to give the place a thorough clean up from top to bottom. Working with his former partner, Kiz Rider, Harry is assigned to the department’s Open-Unsolved Unit, working on the thousands of cold cases that haunt the LAPD’s files. These detectives are the Closers — they put a shovel in the dirt and turn over the past. By applying new techniques to old evidence they aim to unearth some hidden killers and bring them to justice, for “a city that forgets its murder victims is a city lost.” Harry and Kiz are given a politically sensitive case when a DNA match connects a white supremacist to the 1988 murder of Rebecca Verloren, a sixteen-year-old girl. Becky was of mixed race, and the case appears to have a racial angle. This was LA before the riots and Rodney King; the city was a powder keg waiting for a match. The detectives who worked the case all those years ago seem to have done a decent job, but something doesn’t fit. Meanwhile Harry’s nemesis, Deputy Chief Irving, is watching him. In the new “clean” LAPD Irving has been sidelined to a meaningless job. Compelled by vengeance, he hopes that Harry will make a slip."
+}
+
+### POST create book Echo Park
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "Echo Park",
+  "year": 2006,
+  "blurb": "In 1993, Marie Gesto disappeared after walking out of a supermarket in Hollywood. Fearing the worst, the case was elevated by LAPD commanders from the missing persons squad to the Homicide Division, where Harry Bosch was assigned the case. But the 22-year-old woman never turned up — dead or alive — and it was a case Bosch couldn’t crack. Thirteen years later Bosch is in the Open-Unsolved Unit when he gets a call from the DA’s office. A man accused of two heinous killings is willing to come clean in regard to several other murders in a deal to avoid the death penalty. One of those murders, he says, is the killing of Marie Gesto. Bosch is now assigned to take Raynard Waits’ confession and to make sure the killer is not scamming authorities to avoid a date with death. In confirming the confession Bosch must get close to the man he has sought for thirteen years. Bosch’s whole being as a cop begins to crack when he comes to realize that he and his partner missed a clue back in 1993 that could have led them to Waits and would have stopped the nine murders that followed the killing of Marie Gesto."
+}
+
+### POST create book The Overlook
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "The Overlook",
+  "year": 2007,
+  "blurb": "In his first case since he left the LAPD’s Open Unsolved Unit for the prestigious Homicide Special squad, Harry Bosch is called out to investigate a murder that may have chilling consequences for national security. A doctor with access to a dangerous radioactive substance is found murdered on the overlook above the Mulholland Dam. Retracing his steps, Harry learns that a large quantity of radioactive cesium was stolen shortly before the doctor’s death. With the cesium in unknown hands, Harry fears the murder could be part of a terrorist plot to poison a major American city. Soon, Bosch is in a race against time, not only against the culprits, but also against the Department of Homeland Security and the FBI (in the form of Harry’s one-time lover Rachel Walling), who are convinced that this case is too important for the likes of the LAPD. It is Bosch’s job to prove them all wrong. The Overlook was originally serialized in the New York Times Sunday Magazine. This novel includes material that was not published in the magazine, including new characters and more obstacles in Harry Bosch’s path."
+}
+
+### POST create book Nine Dragons
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "Nine Dragons",
+  "year": 2009,
+  "blurb": "Harry Bosch is assigned a homicide call in South L.A. that takes him to Fortune Liquors, where the Chinese owner has been shot to death behind the counter in a robbery. Joined by members of the department’s Asian Crime Unit, Bosch relentlessly investigates the killing and soon identifies a suspect, a Los Angeles member of a Hong Kong triad. But before Harry can close in, he gets the word that his young daughter Maddie, who lives in Hong Kong with her mother, is missing. Bosch drops everything to journey across the Pacific to find his daughter. Could her disappearance and the case be connected? With the stakes of the investigation so high and so personal, Bosch is up against the clock in a new city, where nothing is at it seems."
+}
+
+### POST create book The Drop
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "The Drop",
+  "year": 2011,
+  "blurb": "Harry Bosch has been given three years before he must retire from the LAPD, and he wants cases more fiercely than ever. In one morning, he gets two. DNA from a 1989 rape and murder matches a 29-year-old convicted rapist. Was he an eight-year-old killer or has something gone terribly wrong in the new Regional Crime Lab? The latter possibility could compromise all of the lab’s DNA cases currently in court. Then Bosch and his partner are called to a death scene fraught with internal politics. Councilman Irvin Irving’s son jumped or was pushed from a window at the Chateau Marmont. Irving, Bosch’s longtime nemesis, has demanded that Harry handle the investigation. Relentlessly pursuing both cases, Bosch makes two chilling discoveries: a killer operating unknown in the city for as many as three decades, and a political conspiracy that goes back into the dark history of the police department."
+}
+
+### POST create book The Black Box
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "The Black Box",
+  "year": 2012,
+  "blurb": "In a case that spans 20 years, Harry Bosch links the bullet from a recent crime to a file from 1992, the killing of a young female photojournalist during the L.A. riots. Harry originally investigated the murder, but it was then handed off to the Riot Crimes Task Force and never solved. Now Bosch’s ballistics match indicates that her death was not random violence, but something more personal, and connected to a deeper intrigue. Like an investigator combing through the wreckage after a plane crash, Bosch searches for the “black box,” the one piece of evidence that will pull the case together. Riveting and relentlessly paced, The Black Box leads Harry Bosch into one of his most fraught and perilous cases. Named one of Publishers Weekly’s Best Books of 2012."
+}
+
+### POST create book The Burning Room
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "The Burning Room",
+  "year": 2014,
+  "blurb": "In the LAPD’s Open-Unsolved Unit, not many murder victims die a decade after the crime. So when a man succumbs to complications from being shot by a stray bullet ten years earlier, Bosch catches a case in which the body is still fresh, but any other clues are virtually nonexistent. Even a veteran cop would find this one tough going, but Bosch’s new partner, Detective Lucia Soto, has no homicide experience. A young star in the department, Soto has been assigned to Bosch so that he can pass on to her his hard-won expertise. Now Bosch and Soto are tasked with solving a murder that turns out to be highly charged and politically sensitive. Beginning with the bullet that has been lodged for years in the victim’s spine, they must pull new leads from years-old evidence, and these soon reveal that the shooting was anything but random. As their investigation picks up speed, it leads to another unsolved case with even greater stakes: the deaths of several children in a fire that occurred twenty years ago. But when their work starts to threaten careers and lives, Bosch and Soto must decide whether it is worth risking everything to find the truth, or if it’s safer to let some secrets stay buried."
+}
+
+### POST create book The Crossing
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "The Crossing",
+  "year": 2015,
+  "blurb": "Harry Bosch teams up with Lincoln Lawyer Mickey Haller in the new thriller from #1 New York Times bestselling author Michael Connelly, Detective Harry Bosch has retired from the LAPD, but his half-brother, defense attorney Mickey Haller, needs his help. The murder rap against his client seems ironclad, but Mickey is sure it’s a setup. Though it goes against all his instincts, Bosch takes the case. With the secret help of his former LAPD partner Lucia Soto, he turns the investigation inside the police department. But as Bosch gets closer to discovering the truth, he makes himself a target. Bosch: Legacy season 2 uses The Crossing as its main storyline."
+}
+
+### POST create book The Wrong Side Of Goodbye
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "The Wrong Side Of Goodbye",
+  "year": 2016,
+  "blurb": "Only Harry Bosch can uncover LA’s darkest secrets in this new gripping thriller from global bestseller Michael Connelly. Harry Bosch is California’s newest private investigator. He doesn’t advertise, he doesn’t have an office, and he’s picky about who he works for, but it doesn’t matter. His chops from thirty years with the LAPD speak for themselves. Soon one of Southern California’s biggest moguls comes calling. The reclusive billionaire is nearing the end of his life and is haunted by one regret. When he was young, he had a relationship with a Mexican girl, his great love. But soon after becoming pregnant, she disappeared. Did she have the baby? And if so, what happened to it? Desperate to know whether he has an heir, the dying magnate hires Bosch, the only person he can trust. With such a vast fortune at stake, Harry realizes that his mission could be risky not only for himself but for the one he’s seeking. But as he begins to uncover the haunting story–and finds uncanny links to his own past–he knows he cannot rest until he finds the truth. At the same time, unable to leave cop work behind completely, he volunteers as an investigator for a tiny cash-strapped police department and finds himself tracking a serial rapist who is one of the most baffling and dangerous foes he has ever faced. Bosch: Legacy season 1 uses The Wrong Side Of Goodbye as its main storyline."
+}
+
+### POST create book Two Kinds Of Truth
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "Two Kinds Of Truth",
+  "year": 2017,
+  "blurb": "Harry Bosch searches for the truth in the new thriller. Harry Bosch is back as a volunteer working cold cases for the San Fernando police and is called out to a local drug store where a young pharmacist has been murdered. Bosch and the town’s 3-person detective squad sift through the clues, which lead into the dangerous, big business world of prescription drug abuse. Meanwhile, an old case from Bosch’s LAPD days comes back to haunt him when a long-imprisoned killer claims Harry framed him and seems to have new evidence to prove it. Bosch left the LAPD on bad terms, so his former colleagues aren’t keen to protect his reputation. He must fend for himself in clearing his name and keeping a clever killer in prison. The two unrelated cases wind around each other like strands of barbed wire. Along the way Bosch discovers that there are two kinds of truth: the kind that sets you free and the kind that leaves you buried in darkness."
+}
+
+### POST create book Dark Sacred Night
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "Dark Sacred Night",
+  "year": 2018,
+  "blurb": "LAPD Detective Renée Ballard teams up with Harry Bosch in the new thriller from author Michael Connelly. Renée Ballard is working the night beat again, and returns to Hollywood Station in the early hours only to find a stranger rifling through old file cabinets. The intruder is retired detective Harry Bosch, working a cold case that has gotten under his skin. Ballard kicks him out, but then checks into the case herself and it brings a deep tug of empathy and anger. Bosch is investigating the death of fifteen-year-old Daisy Clayton, a runaway on the streets of Hollywood who was brutally murdered and her body left in a dumpster like so much trash. Now, Ballard joins forces with Bosch to find out what happened to Daisy and finally bring her killer to justice. The audiobook is read by Christine Lakin and Titus Welliver.  The Mysterious Bookshop is offering a signed limited edition. DARK SACRED NIGHT was selected for Britain’s biggest book club, the Richard & Judy Book Club."
+}
+
+### POST create book The Night Fire
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "The Night Fire",
+  "year": 2019,
+  "blurb": "Harry Bosch and LAPD Detective Renée Ballard come together again on the murder case that obsessed Bosch’s mentor, the man who trained him to be a homicide detective. Back when Harry Bosch was just a rookie homicide detective, he had an inspiring mentor who taught him to take the work personally and light the fire of relentlessness for every case. Now that mentor, John Jack Thompson, is dead, but after his funeral his widow hands Bosch a murder book that Thompson took with him when he left the LAPD 20 years before — the unsolved killing of a troubled young man in an alley used for drug deals. Bosch brings the murder book to Renée Ballard and asks her to help him find what about the case lit Thompson’s fire all those years ago. That will be their starting point. The bond between Bosch and Ballard tightens as they become a formidable investigation team. And they soon arrive at a worrying question: Did Thompson steal the murder book to work the case in retirement, or to make sure it never got solved?"
+}
+
+### POST create book The Dark Hours
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "The Dark Hours",
+  "year": 2021,
+  "blurb": "A brazen and methodical killer strikes on New Year’s Eve and LAPD Detective Renée Ballard and Harry Bosch must join forces to find justice for the victim in a city scarred by fear and social unrest, in the new thriller from #1 New York Times bestselling author Michael Connelly. There’s chaos in Hollywood at the end of the New Year’s Eve countdown. Working her graveyard shift, LAPD Detective Renée Ballard waits out the traditional rain of lead as hundreds of revelers shoot their guns into the air. Only minutes after midnight, Ballard is called to a scene where a hardworking auto shop owner has been fatally hit by a bullet in the middle of a crowded street party. Ballard quickly concludes that the deadly bullet could not have fallen from the sky and that it is linked to another unsolved murder—a case at one time worked by Detective Harry Bosch. At the same time, Ballard hunts a fiendish pair of serial rapists, the Midnight Men, who have been terrorizing women and leaving no trace. Determined to solve both cases, Ballard feels like she is constantly running uphill in a police department indelibly changed by the pandemic and recent social unrest. It is a department so hampered by inertia and low morale that Ballard must go outside to the one detective she can count on: Harry Bosch. But as the two inexorable detectives work together to find out where old and new cases intersect, they must constantly look over their shoulders. The brutal predators they are tracking are ready to kill to keep their secrets hidden."
+}
+
+### POST create book Desert Star
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "Desert Star",
+  "year": 2022,
+  "blurb": "LAPD detective Renée Ballard and Harry Bosch work together to hunt the killer who is Bosch’s “white whale”—a man responsible for the murder of an entire family. A year has passed since LAPD detective Renée Ballard quit the force in the face of misogyny, demoralization, and endless red tape. Yet, after the chief of police himself tells her she can write her own ticket within the department, Ballard takes back her badge, leaving “the Late Show” to rebuild the cold case unit at the elite Robbery-Homicide Division. For years, Harry Bosch has been working a case that haunts him but that he hasn’t been able to crack—the murder of an entire family by a psychopath who still walks free. Ballard makes Bosch an offer: come work with her as a volunteer investigator in the new Open-Unsolved Unit, and he can pursue his “white whale” with the resources of the LAPD behind him. The two must put aside old resentments to work together again and close in on a dangerous killer."
+}
+
+### POST create book The Waiting
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "The Waiting",
+  "year": 2024,
+  "blurb": "In cold cases, it’s not the hope that kills you. It’s the waiting. Renée Ballard and the LAPD’s Open-Unsolved Unit get a hot shot DNA connection between a recently arrested man and a serial rapist and murderer who went quiet twenty years ago. The arrested man is only twenty-four, so the genetic link must be familial: His father was the Pillowcase Rapist, responsible for a five-year reign of terror in the city of angels. But when Ballard and her team move in on their suspect, they encounter a baffling web of secrets and legal hurdles. Meanwhile, Ballard’s badge, gun, and ID are stolen—a theft she can’t report without giving her enemies in the department ammunition to end her career as a detective. She works the burglary alone, but her mission draws her into unexpected danger. With no choice but to go outside the department for help, she knocks on the door of Harry Bosch. At the same time, Ballard takes on a new volunteer to the cold case unit: Bosch’s daughter Maddie, now a patrol officer. But Maddie has an ulterior motive for getting access to the city’s library of lost souls—a case that may be the most iconic in the city’s history."
+}
+
+### POST create book Blood Work
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "Blood Work",
+  "year": 1998,
+  "blurb": "In Blood Work, Michael Connelly introduces a new character, Terry McCaleb, who was a top man at the FBI until a heart ailment forced his early retirement.  Now he lives a quiet life, nursing his new heart and restoring the boat on which he lives in Los Angeles Harbor.  Although he isn’t looking for any excitement, when Graciela Rivers asks him to investigate her sister Gloria’s death, her story hooks him immediately: the new heart beating in McCaleb’s chest is Gloria’s. As McCaleb investigates the evidence in the case, the suspected randomness of the crime gives way to an unsettling suspicion of a twisted intelligence behind the murder.  Soon McCaleb finds himself on the trail of a killer more horrifying than anything he ever encountered before. Blood Work won the Grand Prix, the highest honor for a mystery novel in France. It also won the Anthony Award and Macavity Award for Best Novel of 1998."
+}
+
+### POST create book Chasing The Dime
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "Chasing The Dime",
+  "year": 2002,
+  "blurb": "Would you risk your life for a woman you’d never met? Henry Pierce has a whole new life — new apartment, new telephone, new telephone number. But the first time he checks his messages, he discovers that someone had the number before him. The messages on his line are for a woman named Lilly, and she is in some kind of serious trouble. Pierce is inexorably drawn into Lilly’s world, and it’s unlike any world he’s ever known. It is a nighttime world of escort services, websites, sex, and secret identities. Pierce tumbles through a hole, abandoning his orderly life in a frantic race to save the life of a woman he has never met. Pierce’s skills as a computer entrepreneur allow him to trace Lilly’s last days with some precision. But every step into Lilly’s past takes Pierce deeper into a web of inescapable intricacy — and a decision that could cost him everything he owns and holds dear."
+}
+
+### POST create book Void Moon
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "Void Moon",
+  "year": 2000,
+  "blurb": "Cassie Black has never looked back.  She walked away from her life as a criminal after one disastrous night that left the man closest to her dead and her life in a shambles.  Now she’s thriving at a job selling Porsches to Hollywood hotshots.  Through everything — even her darkest moments — she has been able to keep going by holding on to one perfect thing, her greatest secret, dearer to her than life itself. When that secret is threatened, Cassie tosses her new life away like a bad hand of cards and goes back in a sprint to her old line of work.  Her trade was robbing casino gamblers, and she was the very best.  Now it’s the only way she can make enough money fast to maybe make everything right.  Quickly she lines up a mark, a man who has been winning steadily for a week at high-stakes baccarat.  The job goes smoothly until she opens his briefcase… And discovers a world of trouble she never dreamed of.  Her superstitious friend who lined up the job says it’s the bad-luck void moon having its malignant way.  Cassie knows it’s worse.  She’s crossed paths again with her life’s nemesis, the man who destroyed everything six years before.  He’s Jack Karch, a private investigator by day who does bloody work for casino owners by night.  Walking back into his sights is the worst thing that’s ever happened to Cassie.  Getting out alive will take all her skill and luck and faith in that one good thing…"
+}
+
+### POST create book The Lincoln Lawyer
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "The Lincoln Lawyer",
+  "year": 2005,
+  "blurb": "Mickey Haller has spent all his professional life afraid that he wouldn’t recognize innocence if it stood right in front of him. But what he should have been on the watch for was evil. Haller is a Lincoln Lawyer, a criminal defense attorney who operates out of the back seat of his Lincoln Town Car, traveling between the far-flung courthouses of Los Angeles to defend clients of every kind. Bikers, con artists, drunk drivers, drug dealers — they’re all on Mickey Haller’s client list. For him, the law is rarely about guilt or innocence — it’s about negotiation and manipulation. Sometimes it’s even about justice. A Beverly Hills playboy arrested for attacking a woman he picked up in a bar chooses Haller to defend him, and Mickey has his first high-paying client in years. It is a defense attorney’s dream, what they call a franchise case. And as the evidence stacks up, Haller comes to believe this may be the easiest case of his career. Then someone close to him is murdered and Haller discovers that his search for innocence has brought him face-to-face with evil as pure as a flame. To escape without being burned, he must deploy every tactic, feint, and instinct in his arsenal — this time to save his own life."
+}
+
+### POST create book The Brass Verdict
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "The Brass Verdict",
+  "year": 2008,
+  "blurb": "Things are finally looking up for defense attorney Mickey Haller. After two years of wrong turns, Haller is ready to go back to the courtroom. When Hollywood lawyer Jerry Vincent is murdered, Haller inherits his biggest case yet: the defense of Walter Elliott, a prominent studio executive accused of murdering his wife and her lover. But as Haller prepares for the case that could launch him into the big time, he learns that Vincent’s killer may be coming for him next. Enter LAPD Detective Harry Bosch. Determined to find Vincent’s killer, he is not opposed to using Haller as bait. But as danger mounts and the stakes rise, these two loners realize their only choice is to work together."
+}
+
+### POST create book The Reversal
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "The Reversal",
+  "year": 2010,
+  "blurb": "Longtime defense attorney Mickey Haller is recruited to change sides and prosecute the high-profile retrial of a brutal child murder. After 24 years in prison, convicted killer Jason Jessup has been exonerated by new DNA evidence. Haller is convinced Jessup is guilty, and he takes the case on the condition that he gets to choose his investigator, LAPD Detective Harry Bosch. Together, Bosch and Haller set off on a case fraught with political and personal danger. Opposing them is Jessup, now out on bail, a defense attorney who excels at manipulating the media, and a runaway eyewitness reluctant to testify after so many years. With the odds and the evidence against them, Bosch and Haller must nail a sadistic killer once and for all. If Bosch is sure of anything, it is that Jason Jessup plans to kill again."
+}
+
+### POST create book The Fifth Witness
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "The Fifth Witness",
+  "year": 2011,
+  "blurb": "In tough times, crime is one of the few things that still pays, but if defense attorney Mickey Haller was expecting an uptick in business during the economic downturn, the reality is a different story. Even people needing legal representation to keep them out of jail are having to make cutbacks, it seems. In fact, the most significant part of Mickey’s business right now is not about keeping clients out of jail but about keeping a roof over their heads, as the foreclosure boom hits thousands of people who were granted unrealistic mortgages in the good times and now face being kicked to the curb in the bad times. Lisa Trammel has been a client of Mickey’s for eight months — his very first foreclosure case, in fact — and although so far he’s managed to stop the bank from taking her house, the strain and sense of injustice have taken a toll. The bank recently got a restraining order to prevent her from protesting against their practices. Now, a high level bank employee, Mitchell Bondurant, has been found dead in the bank’s parking lot and Lisa is about to be indicted for murder. For Mickey, it’s back to what he does best on the biggest stage of all, but if he thought defending Lisa Trammel was going to be a walk in the park, he’d be wrong. Not only is he about to learn some startling truths about his client, but also about himself, and by the time the verdict is in, Mickey’s whole world will have been turned upside down."
+}
+
+### POST create book The Gods of Guilt
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "The Gods of Guilt",
+  "year": 2013,
+  "blurb": "Mickey Haller gets the text, “Call me ASAP — 187,” and the California penal code for murder immediately gets his attention. Murder cases have the highest stakes and the biggest paydays, and they always mean Haller has to be at the top of his game. When Mickey learns that the victim was his own former client, a prostitute he thought he had rescued and put on the straight and narrow path, he knows he is on the hook for this one. He soon finds out that she was back in LA and back in the life. Far from saving her, Mickey may have been the one who put her in danger. Haunted by the ghosts of his past, Mickey must work tirelessly and bring all his skill to bear on a case that could mean his ultimate redemption or proof of his ultimate guilt."
+}
+
+### POST create book The Law Of Innocence
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "The Law Of Innocence",
+  "year": 2020,
+  "blurb": "Defense attorney Mickey Haller is pulled over by police, who find the body of a client in the trunk of his Lincoln. Haller is charged with murder and can’t make the exorbitant $5 million bail slapped on him by a vindictive judge. Mickey elects to defend himself and must strategize and build his defense from his jail cell in the Twin Towers Correctional Center in downtown Los Angeles, all the while looking over his shoulder–as an officer of the court he is an instant target. Mickey knows he’s been framed. Now, with the help of his trusted team, including Harry Bosch, he has to figure out who has plotted to destroy his life and why. Then he has to go before a judge and jury and prove his innocence."
+}
+
+### POST create book Resurrection Walk
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "Resurrection Walk",
+  "year": 2023,
+  "blurb": "Lincoln Lawyer Mickey Haller enlists the help of his half-brother, Harry Bosch, to prove the innocence of a woman convicted of killing her ex-husband. Defense attorney Mickey Haller is back, taking the long shot cases, where the chances of winning are one in a million. After getting a wrongfully convicted man out of prison, he is inundated with pleas from incarcerated people claiming innocence. He enlists his half-brother, retired LAPD Detective Harry Bosch, to weed through the letters, knowing most claims will be false. Bosch pulls a needle from the haystack: a woman in prison for killing her ex-husband, a sheriff’s deputy, but who still maintains her innocence. Bosch reviews the case and sees elements that don’t add up, and a sheriff’s department intent on bringing quick justice in the killing of one of its own. Now Haller has an uphill battle in court, a David fighting Goliaths to vindicate his client. The path for both lawyer and investigator is fraught with danger from those who don’t want the case reopened and will stop at nothing to keep the Haller-Bosch dream team from finding the truth."
+}
+
+### POST create book The Proving Ground
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "The Proving Ground",
+  "year": 2025,
+  "blurb": "Following his “resurrection walk” and need for a new direction, Mickey Haller turns to public interest litigation, filing a civil lawsuit against an artificial intelligence company whose chatbot told a sixteen-year-old boy that it was okay for him to kill his ex-girlfriend for her disloyalty. Representing the victim’s family, Mickey’s case explores the mostly unregulated and exploding AI business and the lack of training guardrails. Along the way he joins up with a journalist named Jack McEvoy, who wants to be a fly on the wall during the trial in order to write a book about it. But Mickey puts him to work going through the mountain of printed discovery materials in the case. McEvoy’s digging ultimate delivers the key witness, a whistleblower who has been too afraid to speak up. The case is fraught with danger because billions are at stake. It is said that machines became smarter than humans on the day in 1997 that IBM’s Deep Blue defeated chess master Garry Kasparov with a gambit called “the knight’s sacrifice.” Haller will take a similar gambit in court to defeat the mega forces of the AI industry lined up against him and his clients."
+}
+
+### POST create book The Late Show
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "The Late Show",
+  "year": 2017,
+  "blurb": "Renée Ballard works the night shift in Hollywood, beginning many investigations but finishing none as each morning she turns her cases over to day shift detectives. A once up-and-coming detective, she’s been given this beat as punishment after filing a sexual harassment complaint against a supervisor. But one night she catches two cases she doesn’t want to part with: the brutal beating of a prostitute left for dead in a parking lot and the killing of a young woman in a nightclub shooting. Ballard is determined not to give up at dawn. Against orders and her own partner’s wishes, she works both cases by day while maintaining her shift by night. As the cases entwine they pull her closer to her own demons and the reason she won’t give up her job no matter what the department throws at her."
+}
+
+### POST create book The Poet
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "The Poet",
+  "year": 1996,
+  "blurb": "Death is my beat… Jack McEvoy specializes in death.  As a crime reporter for the Rocky Mountain News, he has seen every kind of murder.  But his professional bravado doesn’t lessen the brutal shock of learning that his only brother is dead, a suicide. Jack’s brother was a homicide detective, and he had been depressed about a recent murder case, a hideously grisly one, that he’d been unable to solve. McEvoy decides that the best way to exorcise his grief is by writing a feature on police suicides.  But when he begins his research, he quickly arrives at a stunning revelation.  Following his leads, protecting his sources, muscling his way inside a federal investigation, Jack grabs hold of what is clearly the story of a lifetime.  He also knows that in taking on the story, he’s making himself the most visible target for a murderer who has eluded the greatest investigators alive."
+}
+
+### POST create book The Scarecrow
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "The Scarecrow",
+  "year": 2009,
+  "blurb": "Jack McEvoy is at the end of the line as a crime reporter. Forced to take a buy-out from the Los Angeles Times as the newspaper grapples with dwindling revenues, he’s got only a few days left on the job. His last assignment? Training his replacement, a low-cost reporter just out of journalism school. But Jack has other plans for his exit. He is going to go out with a bang — a final story that will win the newspaper journalism’s highest honor — a Pulitzer prize. Jack focuses on Alonzo Winslow, a 16-year-old drug dealer from the projects who has confessed to police that he brutally raped and strangled one of his crack clients. Jack convinces Alonzo’s mother to cooperate with his investigation into the possibility of her son’s innocence. But she has fallen for the oldest reporter’s trick in the book. Jack’s real intention is to use his access to report and write a story that explains how societal dysfunction and neglect created a 16-year-old killer. But as Jack delves into the story he soon realizes that Alonzo’s so-called confession is bogus, and Jack is soon off and running on the biggest story he’s had since The Poet crossed his path years before. He reunites with FBI Agent Rachel Walling to go after a killer who has worked completely below police and FBI radar — and with perfect knowledge of any move against him. What Jack doesn’t know is that his investigation has inadvertently set off a digital tripwire. The killer knows Jack is coming — and he’s ready."
+}
+
+### POST create book Fair Warning
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "Fair Warning",
+  "year": 2020,
+  "blurb": "The hero of The Poet and The Scarecrow is back. Jack McEvoy, the journalist who never backs down, tracks a serial killer who has been operating completely under the radar – until now. Veteran reporter Jack McEvoy has taken down killers before, but when a woman he had a one-night stand with is murdered in a particularly brutal way, he realizes he might be facing a criminal mind unlike any he’s ever encountered. Jack investigates – against the warnings of the police and his own editor – and makes a shocking discovery that connects the crime to other mysterious deaths across the country. Undetected by law enforcement, a vicious killer has been hunting women, using genetic data shared by the victims themselves to select and stalk his targets. Uncovering the murkiest corners of the dark web, Jack races to find and protect the last source who can lead him to his quarry. But the killer has already chosen his next target, and he’s ready to strike."
+}
+
+### POST create book Nightshade
+POST http://{{address}}/books
+Content-Type: application/json
+
+{
+  "title": "Nightshade",
+  "year": 2025,
+  "blurb": "Michael Connelly introduces a new cop relentlessly following his mission in the seemingly idyllic setting of Catalina Island. Los Angeles County Sheriff’s Detective Stilwell has been “exiled” to a low-key post policing rustic Catalina Island, after department politics drove him off a homicide desk on the mainland. But while following up the usual drunk-and-disorderlies and petty thefts that come with his new territory, Detective Stilwell gets a report of a body found wrapped in plastic and weighed down at the bottom of the harbor. Crossing all lines of protocol and jurisdiction, he starts doggedly working the case. Soon, his investigation uncovers closely guarded secrets and a dark heart to the serene island that was meant to be his escape from the evils of the big city."
+}
 

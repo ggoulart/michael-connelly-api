@@ -7,9 +7,8 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/ggoulart/michael-connelly-api/internal/dynamo"
 )
-
-var ErrDynamodb = errors.New("dynamodb error")
 
 type DynamoClient interface {
 	Save(ctx context.Context, tableName string, item map[string]types.AttributeValue, uniqueKey string) (string, error)
@@ -29,11 +28,14 @@ func NewRepository(dynamoDB DynamoClient, tableName string) *Repository {
 func (r *Repository) Save(ctx context.Context, character Character) (Character, error) {
 	characterItem, err := attributevalue.MarshalMap(NewDBCharacter(character))
 	if err != nil {
-		return Character{}, fmt.Errorf("%w. failed to marshal character: %w", ErrDynamodb, err)
+		return Character{}, fmt.Errorf("failed to marshal character: %w", err)
 	}
 
 	id, err := r.dynamodb.Save(ctx, r.tableName, characterItem, character.Name)
 	if err != nil {
+		if errors.Is(err, dynamo.ErrDuplicated) {
+			return r.GetByName(ctx, character.Name)
+		}
 		return Character{}, err
 	}
 
@@ -48,12 +50,13 @@ func (r *Repository) GetById(ctx context.Context, characterID string) (Character
 		return Character{}, err
 	}
 
-	var character Character
-	err = attributevalue.UnmarshalMap(item, &character)
+	var dbCharacter DBCharacter
+	err = attributevalue.UnmarshalMap(item, &dbCharacter)
 	if err != nil {
-		return Character{}, fmt.Errorf("%w. failed to unmarshal character: %w", ErrDynamodb, err)
+		return Character{}, fmt.Errorf("failed to unmarshal character: %w", err)
 	}
-	return character, nil
+
+	return dbCharacter.ToCharacter(), nil
 }
 
 func (r *Repository) GetByName(ctx context.Context, characterName string) (Character, error) {
@@ -62,13 +65,13 @@ func (r *Repository) GetByName(ctx context.Context, characterName string) (Chara
 		return Character{}, err
 	}
 
-	var character Character
-	err = attributevalue.UnmarshalMap(item, &character)
+	var dbCharacter DBCharacter
+	err = attributevalue.UnmarshalMap(item, &dbCharacter)
 	if err != nil {
-		return Character{}, fmt.Errorf("%w. failed to unmarshal character: %w", ErrDynamodb, err)
+		return Character{}, fmt.Errorf("failed to unmarshal character: %w", err)
 	}
 
-	return character, nil
+	return dbCharacter.ToCharacter(), nil
 }
 
 type DBCharacter struct {
@@ -87,5 +90,12 @@ func NewDBCharacter(character Character) DBCharacter {
 		ID:    character.ID,
 		Name:  character.Name,
 		Books: bookIds,
+	}
+}
+
+func (d *DBCharacter) ToCharacter() Character {
+	return Character{
+		ID:   d.ID,
+		Name: d.Name,
 	}
 }

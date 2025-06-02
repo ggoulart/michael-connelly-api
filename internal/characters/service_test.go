@@ -4,31 +4,42 @@ import (
 	"context"
 	"testing"
 
+	"github.com/ggoulart/michael-connelly-api/internal/books"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestService_Create(t *testing.T) {
 	ctx := context.Background()
-	receivedCharacter := Character{Name: "Harry Bosch"}
 	tests := []struct {
 		name    string
-		setup   func(s *StorageCharacterMock)
+		setup   func(*StorageCharacterMock, *StorageBookMock)
 		want    Character
 		wantErr error
 	}{
 		{
+			name: "when failed to get book by title",
+			setup: func(_ *StorageCharacterMock, b *StorageBookMock) {
+				b.On("GetByTitle", ctx, "The Black Echo").Return(books.Book{}, assert.AnError)
+			},
+			wantErr: assert.AnError,
+		},
+		{
 			name: "failed to save character",
-			setup: func(s *StorageCharacterMock) {
-				s.On("Save", ctx, receivedCharacter).Return(Character{}, assert.AnError)
+			setup: func(c *StorageCharacterMock, b *StorageBookMock) {
+				book := books.Book{ID: "random-book-id", Title: "The Black Echo"}
+				b.On("GetByTitle", ctx, "The Black Echo").Return(book, nil)
+				c.On("Save", ctx, Character{Name: "Harry Bosch", Books: []books.Book{book}}).Return(Character{}, assert.AnError)
 			},
 			wantErr: assert.AnError,
 		},
 		{
 			name: "successfully saved character",
-			setup: func(s *StorageCharacterMock) {
+			setup: func(c *StorageCharacterMock, b *StorageBookMock) {
+				book := books.Book{ID: "random-book-id", Title: "The Black Echo"}
+				b.On("GetByTitle", ctx, "The Black Echo").Return(book, nil)
 				savedCharacter := Character{ID: "c6767b2d-438b-4d4c-8b1a-659130a640ca", Name: "Harry Bosch"}
-				s.On("Save", ctx, receivedCharacter).Return(savedCharacter, nil)
+				c.On("Save", ctx, Character{Name: "Harry Bosch", Books: []books.Book{book}}).Return(savedCharacter, nil)
 			},
 			want: Character{ID: "c6767b2d-438b-4d4c-8b1a-659130a640ca", Name: "Harry Bosch"},
 		},
@@ -36,11 +47,12 @@ func TestService_Create(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			storageCharacter := new(StorageCharacterMock)
-			tt.setup(storageCharacter)
+			storageBook := new(StorageBookMock)
+			tt.setup(storageCharacter, storageBook)
 
-			s := NewService(storageCharacter)
+			s := NewService(storageCharacter, storageBook)
 
-			got, err := s.Create(ctx, receivedCharacter)
+			got, err := s.Create(ctx, Character{Name: "Harry Bosch"}, []string{"The Black Echo"})
 
 			assert.Equal(t, tt.want, got)
 			assert.Equal(t, tt.wantErr, err)
@@ -77,7 +89,7 @@ func TestService_GetById(t *testing.T) {
 			storageCharacter := new(StorageCharacterMock)
 			tt.setup(storageCharacter)
 
-			s := NewService(storageCharacter)
+			s := NewService(storageCharacter, nil)
 
 			got, err := s.GetById(ctx, "a-random-character-id")
 
@@ -116,7 +128,7 @@ func TestService_GetByName(t *testing.T) {
 			storageCharacter := new(StorageCharacterMock)
 			tt.setup(storageCharacter)
 
-			s := NewService(storageCharacter)
+			s := NewService(storageCharacter, nil)
 			got, err := s.GetByName(ctx, "Harry Bosch")
 
 			assert.Equal(t, got, tt.want)
@@ -142,4 +154,13 @@ func (s *StorageCharacterMock) Save(ctx context.Context, character Character) (C
 func (s *StorageCharacterMock) GetById(ctx context.Context, characterID string) (Character, error) {
 	args := s.Called(ctx, characterID)
 	return args.Get(0).(Character), args.Error(1)
+}
+
+type StorageBookMock struct {
+	mock.Mock
+}
+
+func (s *StorageBookMock) GetByTitle(ctx context.Context, bookTitle string) (books.Book, error) {
+	args := s.Called(ctx, bookTitle)
+	return args.Get(0).(books.Book), args.Error(1)
 }

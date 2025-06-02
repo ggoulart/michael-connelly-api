@@ -8,7 +8,7 @@ import (
 )
 
 type Manager interface {
-	Create(ctx context.Context, character Character) (Character, error)
+	Create(ctx context.Context, character Character, bookTitles []string) (Character, error)
 	GetById(ctx context.Context, characterID string) (Character, error)
 	GetByName(ctx context.Context, characterName string) (Character, error)
 }
@@ -28,7 +28,7 @@ func (c *Controller) Create(ctx *gin.Context) {
 		return
 	}
 
-	createdCharacter, err := c.manager.Create(ctx, characterRequest.ToCharacter())
+	createdCharacter, err := c.manager.Create(ctx, characterRequest.ToCharacter(), characterRequest.BookTitles)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -70,7 +70,8 @@ func (c *Controller) GetByName(ctx *gin.Context) {
 }
 
 type CharacterRequest struct {
-	Name string `json:"name" binding:"required"`
+	Name       string   `json:"name" binding:"required"`
+	BookTitles []string `json:"bookTitles"`
 }
 
 func (r *CharacterRequest) ToCharacter() Character {
