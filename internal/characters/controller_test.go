@@ -2,6 +2,8 @@ package characters
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -10,24 +12,26 @@ import (
 
 	"github.com/ggoulart/michael-connelly-api/internal/books"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestController_Create(t *testing.T) {
 	tests := []struct {
-		name         string
-		reqBody      string
-		setup        func(*ManagerMock)
-		expectedCode int
-		respBody     string
+		name     string
+		reqBody  string
+		setup    func(*ManagerMock)
+		expected func(*httptest.ResponseRecorder, error)
 	}{
 		{
-			name:         "when request body is an invalid json",
-			reqBody:      `}`,
-			setup:        func(m *ManagerMock) {},
-			expectedCode: http.StatusBadRequest,
-			respBody:     `{"error":"invalid request body"}`,
+			name:    "when request body is an invalid json",
+			reqBody: `}`,
+			setup:   func(m *ManagerMock) {},
+			expected: func(_ *httptest.ResponseRecorder, err error) {
+				var syntaxErr *json.SyntaxError
+				assert.True(t, errors.As(err, &syntaxErr))
+			},
 		},
 		{
 			name:    "when create character service fails",
@@ -36,8 +40,9 @@ func TestController_Create(t *testing.T) {
 				reqCharacter := Character{Name: "Harry Bosch"}
 				m.On("Create", mock.Anything, reqCharacter, []string(nil)).Return(Character{}, assert.AnError).Once()
 			},
-			expectedCode: http.StatusInternalServerError,
-			respBody:     `{"error":"assert.AnError general error for testing"}`,
+			expected: func(_ *httptest.ResponseRecorder, err error) {
+				assert.True(t, errors.Is(err, assert.AnError))
+			},
 		},
 		{
 			name:    "when create character is successful",
@@ -47,8 +52,11 @@ func TestController_Create(t *testing.T) {
 				respCharacter := Character{ID: "random-id", Name: "Harry Bosch", Books: []books.Book{{Title: "random-book-title"}}}
 				m.On("Create", mock.Anything, reqCharacter, []string{"random-book-title"}).Return(respCharacter, nil).Once()
 			},
-			expectedCode: http.StatusCreated,
-			respBody:     `{"id":"random-id","name":"Harry Bosch","booksTitles":["random-book-title"]}`,
+			expected: func(r *httptest.ResponseRecorder, err error) {
+				assert.Nil(t, err)
+				assert.Equal(t, http.StatusCreated, r.Code)
+				assert.Equal(t, `{"id":"random-id","name":"Harry Bosch","booksTitles":["random-book-title"]}`, r.Body.String())
+			},
 		},
 	}
 	for _, tt := range tests {
@@ -66,8 +74,7 @@ func TestController_Create(t *testing.T) {
 
 			ctx.Writer.WriteHeaderNow()
 
-			assert.Equal(t, tt.expectedCode, recorder.Code)
-			assert.Equal(t, tt.respBody, recorder.Body.String())
+			tt.expected(recorder, ctx.Errors.Last())
 			m.AssertExpectations(t)
 		})
 	}
@@ -75,35 +82,40 @@ func TestController_Create(t *testing.T) {
 
 func TestController_GetById(t *testing.T) {
 	tests := []struct {
-		name         string
-		setup        func(*gin.Context, *ManagerMock)
-		expectedCode int
-		respBody     string
+		name     string
+		setup    func(*gin.Context, *ManagerMock)
+		expected func(*httptest.ResponseRecorder, error)
 	}{
 		{
-			name:         "when missing character id req param",
-			setup:        func(_ *gin.Context, _ *ManagerMock) {},
-			expectedCode: http.StatusBadRequest,
-			respBody:     `{"error":"characterID is required"}`,
+			name:  "when missing character id",
+			setup: func(_ *gin.Context, _ *ManagerMock) {},
+			expected: func(_ *httptest.ResponseRecorder, err error) {
+				var validationErrs validator.ValidationErrors
+				assert.True(t, errors.As(err, &validationErrs))
+			},
 		},
 		{
 			name: "when get character service fails",
 			setup: func(ctx *gin.Context, m *ManagerMock) {
-				ctx.Params = gin.Params{{Key: "characterID", Value: "a-character-id"}}
-				m.On("GetById", mock.Anything, "a-character-id").Return(Character{}, assert.AnError).Once()
+				ctx.Params = gin.Params{{Key: "character", Value: "c6767b2d-438b-4d4c-8b1a-659130a640ca"}}
+				m.On("GetById", mock.Anything, "c6767b2d-438b-4d4c-8b1a-659130a640ca").Return(Character{}, assert.AnError).Once()
 			},
-			expectedCode: http.StatusInternalServerError,
-			respBody:     `{"error":"assert.AnError general error for testing"}`,
+			expected: func(_ *httptest.ResponseRecorder, err error) {
+				assert.True(t, errors.Is(err, assert.AnError))
+			},
 		},
 		{
 			name: "when get character service is successful",
 			setup: func(ctx *gin.Context, m *ManagerMock) {
-				ctx.Params = gin.Params{{Key: "characterID", Value: "a-character-id"}}
-				respCharacter := Character{ID: "a-character-id", Name: "Harry Bosch"}
-				m.On("GetById", mock.Anything, "a-character-id").Return(respCharacter, nil).Once()
+				ctx.Params = gin.Params{{Key: "character", Value: "c6767b2d-438b-4d4c-8b1a-659130a640ca"}}
+				respCharacter := Character{ID: "c6767b2d-438b-4d4c-8b1a-659130a640ca", Name: "Harry Bosch"}
+				m.On("GetById", mock.Anything, "c6767b2d-438b-4d4c-8b1a-659130a640ca").Return(respCharacter, nil).Once()
 			},
-			expectedCode: http.StatusOK,
-			respBody:     `{"id":"a-character-id","name":"Harry Bosch"}`,
+			expected: func(r *httptest.ResponseRecorder, err error) {
+				assert.Nil(t, err)
+				assert.Equal(t, http.StatusOK, r.Code)
+				assert.Equal(t, `{"id":"c6767b2d-438b-4d4c-8b1a-659130a640ca","name":"Harry Bosch"}`, r.Body.String())
+			},
 		},
 	}
 	for _, tt := range tests {
@@ -113,16 +125,15 @@ func TestController_GetById(t *testing.T) {
 
 			recorder := httptest.NewRecorder()
 			ctx, _ := gin.CreateTestContext(recorder)
-			ctx.Request = httptest.NewRequest(http.MethodGet, "/characters/character-id", nil)
+			ctx.Request = httptest.NewRequest(http.MethodGet, "/characters/c6767b2d-438b-4d4c-8b1a-659130a640ca", nil)
 
 			tt.setup(ctx, m)
 
-			c.GetById(ctx)
+			c.GetBy(ctx)
 
 			ctx.Writer.WriteHeaderNow()
 
-			assert.Equal(t, tt.expectedCode, recorder.Code)
-			assert.Equal(t, tt.respBody, recorder.Body.String())
+			tt.expected(recorder, ctx.Errors.Last())
 			m.AssertExpectations(t)
 		})
 	}
@@ -132,34 +143,41 @@ func TestController_GetByName(t *testing.T) {
 	tests := []struct {
 		name           string
 		nameQueryParam string
-		setup          func(*ManagerMock)
-		expectedCode   int
-		respBody       string
+		setup          func(*gin.Context, *ManagerMock)
+		expected       func(*httptest.ResponseRecorder, error)
 	}{
 		{
-			name:         "when missing character name req param",
-			setup:        func(_ *ManagerMock) {},
-			expectedCode: http.StatusBadRequest,
-			respBody:     `{"error":"query param 'name' is required"}`,
+			name:  "when missing character name",
+			setup: func(_ *gin.Context, _ *ManagerMock) {},
+			expected: func(_ *httptest.ResponseRecorder, err error) {
+				var validationErrs validator.ValidationErrors
+				assert.True(t, errors.As(err, &validationErrs))
+			},
 		},
 		{
 			name:           "when get character service fails",
 			nameQueryParam: "Harry Bosch",
-			setup: func(m *ManagerMock) {
+			setup: func(ctx *gin.Context, m *ManagerMock) {
+				ctx.Params = gin.Params{{Key: "character", Value: "Harry Bosch"}}
 				m.On("GetByName", mock.Anything, "Harry Bosch").Return(Character{}, assert.AnError).Once()
 			},
-			expectedCode: http.StatusInternalServerError,
-			respBody:     `{"error":"assert.AnError general error for testing"}`,
+			expected: func(_ *httptest.ResponseRecorder, err error) {
+				assert.True(t, errors.Is(err, assert.AnError))
+			},
 		},
 		{
 			name:           "when get character service is successful",
 			nameQueryParam: "Harry Bosch",
-			setup: func(m *ManagerMock) {
+			setup: func(ctx *gin.Context, m *ManagerMock) {
+				ctx.Params = gin.Params{{Key: "character", Value: "Harry Bosch"}}
 				character := Character{ID: "random-id", Name: "Harry Bosch"}
 				m.On("GetByName", mock.Anything, "Harry Bosch").Return(character, nil).Once()
 			},
-			expectedCode: http.StatusOK,
-			respBody:     `{"id":"random-id","name":"Harry Bosch"}`,
+			expected: func(r *httptest.ResponseRecorder, err error) {
+				assert.Nil(t, err)
+				assert.Equal(t, http.StatusOK, r.Code)
+				assert.Equal(t, `{"id":"random-id","name":"Harry Bosch"}`, r.Body.String())
+			},
 		},
 	}
 	for _, tt := range tests {
@@ -169,16 +187,15 @@ func TestController_GetByName(t *testing.T) {
 
 			recorder := httptest.NewRecorder()
 			ctx, _ := gin.CreateTestContext(recorder)
-			ctx.Request = httptest.NewRequest(http.MethodGet, "/characters/?name="+url.QueryEscape(tt.nameQueryParam), nil)
+			ctx.Request = httptest.NewRequest(http.MethodGet, "/characters/"+url.QueryEscape("Harry Bosch"), nil)
 
-			tt.setup(m)
+			tt.setup(ctx, m)
 
-			c.GetByName(ctx)
+			c.GetBy(ctx)
 
 			ctx.Writer.WriteHeaderNow()
 
-			assert.Equal(t, tt.expectedCode, recorder.Code)
-			assert.Equal(t, tt.respBody, recorder.Body.String())
+			tt.expected(recorder, ctx.Errors.Last())
 			m.AssertExpectations(t)
 		})
 	}

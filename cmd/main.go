@@ -15,6 +15,7 @@ import (
 	"github.com/ggoulart/michael-connelly-api/internal/characters"
 	"github.com/ggoulart/michael-connelly-api/internal/dynamo"
 	"github.com/ggoulart/michael-connelly-api/internal/health"
+	"github.com/ggoulart/michael-connelly-api/internal/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -70,6 +71,8 @@ func main() {
 func router(booksController *books.Controller, charactersController *characters.Controller, healthController *health.Controller) *gin.Engine {
 	r := gin.Default()
 
+	r.Use(middleware.Error())
+
 	r.GET("/health", healthController.Health)
 
 	book := r.Group("/books")
@@ -78,8 +81,7 @@ func router(booksController *books.Controller, charactersController *characters.
 
 	character := r.Group("/characters")
 	character.POST("/", charactersController.Create)
-	character.GET("/", charactersController.GetByName)
-	character.GET("/:characterID", charactersController.GetById)
+	character.GET("/:character", charactersController.GetBy)
 
 	return r
 }

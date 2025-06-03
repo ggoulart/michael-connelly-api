@@ -2,30 +2,34 @@ package books
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestController_Create(t *testing.T) {
 	tests := []struct {
-		name         string
-		reqBody      string
-		setup        func(*ManagerMock)
-		expectedCode int
-		respBody     string
+		name     string
+		reqBody  string
+		setup    func(*ManagerMock)
+		expected func(*httptest.ResponseRecorder, error)
 	}{
 		{
-			name:         "when request body is an invalid json",
-			reqBody:      `}`,
-			setup:        func(m *ManagerMock) {},
-			expectedCode: http.StatusBadRequest,
-			respBody:     `{"error":"invalid request body"}`,
+			name:    "when request body is an invalid json",
+			reqBody: `}`,
+			setup:   func(m *ManagerMock) {},
+			expected: func(_ *httptest.ResponseRecorder, err error) {
+				var syntaxErr *json.SyntaxError
+				assert.True(t, errors.As(err, &syntaxErr))
+			},
 		},
 		{
 			name:    "when create book service fails",
@@ -34,8 +38,9 @@ func TestController_Create(t *testing.T) {
 				reqBook := Book{Title: "The Black Echo", Year: 1992, Blurb: "a random blurb"}
 				m.On("Create", mock.Anything, reqBook).Return(Book{}, assert.AnError).Once()
 			},
-			expectedCode: http.StatusInternalServerError,
-			respBody:     `{"error":"invalid error"}`,
+			expected: func(_ *httptest.ResponseRecorder, err error) {
+				assert.True(t, errors.Is(err, assert.AnError))
+			},
 		},
 		{
 			name:    "when create book service is successful",
@@ -45,8 +50,11 @@ func TestController_Create(t *testing.T) {
 				respBook := Book{ID: "a-string", Title: "The Black Echo", Year: 1992, Blurb: "a random blurb"}
 				m.On("Create", mock.Anything, reqBook).Return(respBook, nil).Once()
 			},
-			expectedCode: http.StatusCreated,
-			respBody:     `{"id":"a-string","title":"The Black Echo","year":1992,"blurb":"a random blurb"}`,
+			expected: func(r *httptest.ResponseRecorder, err error) {
+				assert.Nil(t, err)
+				assert.Equal(t, http.StatusCreated, r.Code)
+				assert.Equal(t, `{"id":"a-string","title":"The Black Echo","year":1992,"blurb":"a random blurb"}`, r.Body.String())
+			},
 		},
 	}
 	for _, tt := range tests {
@@ -64,8 +72,7 @@ func TestController_Create(t *testing.T) {
 
 			ctx.Writer.WriteHeaderNow()
 
-			assert.Equal(t, tt.expectedCode, recorder.Code)
-			assert.Equal(t, tt.respBody, recorder.Body.String())
+			tt.expected(recorder, ctx.Errors.Last())
 			m.AssertExpectations(t)
 		})
 	}
@@ -73,16 +80,17 @@ func TestController_Create(t *testing.T) {
 
 func TestController_GetById(t *testing.T) {
 	tests := []struct {
-		name         string
-		setup        func(*ManagerMock, *gin.Context)
-		expectedCode int
-		respBody     string
+		name     string
+		setup    func(*ManagerMock, *gin.Context)
+		expected func(*httptest.ResponseRecorder, error)
 	}{
 		{
-			name:         "when missing book id req param",
-			setup:        func(_ *ManagerMock, _ *gin.Context) {},
-			expectedCode: http.StatusBadRequest,
-			respBody:     `{"error":"bookID is required"}`,
+			name:  "when missing book id req param",
+			setup: func(_ *ManagerMock, _ *gin.Context) {},
+			expected: func(_ *httptest.ResponseRecorder, err error) {
+				var validationErrs validator.ValidationErrors
+				assert.True(t, errors.As(err, &validationErrs))
+			},
 		},
 		{
 			name: "when get book service fails",
@@ -90,8 +98,9 @@ func TestController_GetById(t *testing.T) {
 				ctx.Params = gin.Params{{Key: "bookID", Value: "a-book-id"}}
 				m.On("GetById", mock.Anything, "a-book-id").Return(Book{}, assert.AnError).Once()
 			},
-			expectedCode: http.StatusInternalServerError,
-			respBody:     `{"error":"assert.AnError general error for testing"}`,
+			expected: func(_ *httptest.ResponseRecorder, err error) {
+				assert.True(t, errors.Is(err, assert.AnError))
+			},
 		},
 		{
 			name: "when get book service is successful",
@@ -100,8 +109,11 @@ func TestController_GetById(t *testing.T) {
 				respBook := Book{ID: "a-string", Title: "The Black Echo", Year: 1992, Blurb: "a random blurb"}
 				m.On("GetById", mock.Anything, "a-book-id").Return(respBook, nil).Once()
 			},
-			expectedCode: http.StatusOK,
-			respBody:     `{"id":"a-string","title":"The Black Echo","year":1992,"blurb":"a random blurb"}`,
+			expected: func(r *httptest.ResponseRecorder, err error) {
+				assert.Nil(t, err)
+				assert.Equal(t, http.StatusOK, r.Code)
+				assert.Equal(t, `{"id":"a-string","title":"The Black Echo","year":1992,"blurb":"a random blurb"}`, r.Body.String())
+			},
 		},
 	}
 	for _, tt := range tests {
@@ -119,8 +131,7 @@ func TestController_GetById(t *testing.T) {
 
 			ctx.Writer.WriteHeaderNow()
 
-			assert.Equal(t, tt.expectedCode, recorder.Code)
-			assert.Equal(t, tt.respBody, recorder.Body.String())
+			tt.expected(recorder, ctx.Errors.Last())
 			m.AssertExpectations(t)
 		})
 	}

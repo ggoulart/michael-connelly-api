@@ -21,15 +21,15 @@ func NewController(manager Manager) *Controller {
 }
 
 func (c *Controller) Create(ctx *gin.Context) {
-	var bookRequest BookRequest
-	if err := ctx.BindJSON(&bookRequest); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
+	var createRequest CreateRequest
+	if err := ctx.BindJSON(&createRequest); err != nil {
+		ctx.Error(err)
 		return
 	}
 
-	createdBook, err := c.manager.Create(ctx, bookRequest.ToBook())
+	createdBook, err := c.manager.Create(ctx, createRequest.ToBook())
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "invalid error"})
+		ctx.Error(err)
 		return
 	}
 
@@ -37,33 +37,37 @@ func (c *Controller) Create(ctx *gin.Context) {
 }
 
 func (c *Controller) GetById(ctx *gin.Context) {
-	bookID := ctx.Param("bookID")
-	if bookID == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "bookID is required"})
+	var getByIDRequest GetByIDRequest
+	if err := ctx.BindUri(&getByIDRequest); err != nil {
+		ctx.Error(err)
 		return
 	}
 
-	book, err := c.manager.GetById(ctx, bookID)
+	book, err := c.manager.GetById(ctx, getByIDRequest.BookID)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.Error(err)
 		return
 	}
 
 	ctx.JSON(http.StatusOK, NewBookResponse(book))
 }
 
-type BookRequest struct {
+type CreateRequest struct {
 	Title string `json:"title" binding:"required"`
 	Year  int    `json:"year" binding:"required,gte=1956"`
 	Blurb string `json:"blurb"`
 }
 
-func (r *BookRequest) ToBook() Book {
+func (r *CreateRequest) ToBook() Book {
 	return Book{
 		Title: r.Title,
 		Year:  r.Year,
 		Blurb: r.Blurb,
 	}
+}
+
+type GetByIDRequest struct {
+	BookID string `uri:"bookID" binding:"required"`
 }
 
 type BookResponse struct {
