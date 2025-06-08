@@ -32,7 +32,7 @@ func TestRepository_Save(t *testing.T) {
 			want: Book{ID: "random-id", Title: "The Black Echo"},
 		},
 		{
-			name: "when failed to save the book",
+			name: "when failed to save book",
 			setup: func(m *MockDynamoDBClient) {
 				item := map[string]types.AttributeValue{"id": &types.AttributeValueMemberS{Value: ""}, "title": &types.AttributeValueMemberS{Value: "The Black Echo"}, "blurb": &types.AttributeValueMemberS{Value: ""}, "year": &types.AttributeValueMemberN{Value: "0"}}
 				m.On("Save", ctx, "table-name", item, "The Black Echo").Return("", assert.AnError).Once()
@@ -40,7 +40,7 @@ func TestRepository_Save(t *testing.T) {
 			wantErr: assert.AnError,
 		},
 		{
-			name: "when successfully saved the book",
+			name: "when successfully saved book",
 			setup: func(m *MockDynamoDBClient) {
 				item := map[string]types.AttributeValue{"id": &types.AttributeValueMemberS{Value: ""}, "title": &types.AttributeValueMemberS{Value: "The Black Echo"}, "blurb": &types.AttributeValueMemberS{Value: ""}, "year": &types.AttributeValueMemberN{Value: "0"}}
 				m.On("Save", ctx, "table-name", item, "The Black Echo").Return("random-id", nil).Once()
@@ -112,7 +112,7 @@ func TestRepository_GetById(t *testing.T) {
 	}
 }
 
-func TestRepository_GetByNames(t *testing.T) {
+func TestRepository_GetByTitle(t *testing.T) {
 	ctx := context.Background()
 	tests := []struct {
 		name    string
@@ -121,7 +121,7 @@ func TestRepository_GetByNames(t *testing.T) {
 		wantErr error
 	}{
 		{
-			name: "when failed to get book by name",
+			name: "when failed to get book by title",
 			setup: func(m *MockDynamoDBClient) {
 				m.On("GetByUniqueKey", ctx, "table-name", "The Black Echo").Return(map[string]types.AttributeValue{}, assert.AnError).Once()
 			},
@@ -136,7 +136,7 @@ func TestRepository_GetByNames(t *testing.T) {
 			wantErr: fmt.Errorf("failed to unmarshal book: %w", &attributevalue.UnmarshalTypeError{Value: "map", Type: reflect.TypeOf("string")}),
 		},
 		{
-			name: "when successfully get book by name",
+			name: "when successfully get book by title",
 			setup: func(m *MockDynamoDBClient) {
 				output := map[string]types.AttributeValue{"title": &types.AttributeValueMemberS{Value: "The Black Echo"}}
 				m.On("GetByUniqueKey", ctx, "table-name", "The Black Echo").Return(output, nil).Once()

@@ -56,6 +56,8 @@ func TestService_Create(t *testing.T) {
 
 			assert.Equal(t, tt.want, got)
 			assert.Equal(t, tt.wantErr, err)
+			storageCharacter.AssertExpectations(t)
+			storageBook.AssertExpectations(t)
 		})
 	}
 }

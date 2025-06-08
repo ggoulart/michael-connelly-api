@@ -1,0 +1,223 @@
+@address = 127.0.0.1:3000
+
+### POST create The Harry Bosch series
+POST http://{{address}}/series
+Content-Type: application/json
+
+{
+  "title": "The Harry Bosch",
+  "books": [
+    {
+      "bookTitle": "The Black Echo",
+      "order": 1
+    },
+    {
+      "bookTitle": "The Black Ice",
+      "order": 2
+    },
+    {
+      "bookTitle": "The Concrete Blonde",
+      "order": 3
+    },
+    {
+      "bookTitle": "The Last Coyote",
+      "order": 4
+    },
+    {
+      "bookTitle": "Trunk Music",
+      "order": 5
+    },
+    {
+      "bookTitle": "Angels Flight",
+      "order": 6
+    },
+    {
+      "bookTitle": "A Darkness More Than Night",
+      "order": 7
+    },
+    {
+      "bookTitle": "City Of Bones",
+      "order": 8
+    },
+    {
+      "bookTitle": "Lost Light",
+      "order": 9
+    },
+    {
+      "bookTitle": "The Narrows",
+      "order": 10
+    },
+    {
+      "bookTitle": "The Closers",
+      "order": 11
+    },
+    {
+      "bookTitle": "Echo Park",
+      "order": 12
+    },
+    {
+      "bookTitle": "The Overlook",
+      "order": 13
+    },
+    {
+      "bookTitle": "Nine Dragons",
+      "order": 14
+    },
+    {
+      "bookTitle": "The Drop",
+      "order": 15
+    },
+    {
+      "bookTitle": "The Black Box",
+      "order": 16
+    },
+    {
+      "bookTitle": "The Burning Room",
+      "order": 17
+    },
+    {
+      "bookTitle": "The Crossing",
+      "order": 18
+    },
+    {
+      "bookTitle": "The Wrong Side Of Goodbye",
+      "order": 19
+    },
+    {
+      "bookTitle": "Two Kinds Of Truth",
+      "order": 20
+    },
+    {
+      "bookTitle": "Dark Sacred Night",
+      "order": 21
+    },
+    {
+      "bookTitle": "The Night Fire",
+      "order": 22
+    },
+    {
+      "bookTitle": "The Dark Hours",
+      "order": 23
+    },
+    {
+      "bookTitle": "Desert Star",
+      "order": 24
+    },
+    {
+      "bookTitle": "The Waiting",
+      "order": 25
+    }
+  ]
+}
+
+### POST create The Lincoln Lawyer series
+POST http://{{address}}/series
+Content-Type: application/json
+
+{
+  "title": "The Lincoln Lawyer",
+  "books": [
+    {
+      "bookTitle": "The Lincoln Lawyer",
+      "order": 1
+    },
+    {
+      "bookTitle": "The Brass Verdict",
+      "order": 2
+    },
+    {
+      "bookTitle": "The Reversal",
+      "order": 3
+    },
+    {
+      "bookTitle": "The Fifth Witness",
+      "order": 4
+    },
+    {
+      "bookTitle": "The Gods of Guilt",
+      "order": 5
+    },
+    {
+      "bookTitle": "The Law Of Innocence",
+      "order": 6
+    },
+    {
+      "bookTitle": "Resurrection Walk",
+      "order": 7
+    },
+    {
+      "bookTitle": "The Proving Ground",
+      "order": 8
+    }
+  ]
+}
+
+### POST create The Renée Ballard series
+POST http://{{address}}/series
+Content-Type: application/json
+
+{
+  "title": "The Renée Ballard",
+  "books": [
+    {
+      "bookTitle": "The Late Show",
+      "order": 1
+    },
+    {
+      "bookTitle": "Dark Sacred Night",
+      "order": 2
+    },
+    {
+      "bookTitle": "The Night Fire",
+      "order": 3
+    },
+    {
+      "bookTitle": "The Dark Hours",
+      "order": 4
+    },
+    {
+      "bookTitle": "Desert Star",
+      "order": 5
+    },
+    {
+      "bookTitle": "The Waiting",
+      "order": 6
+    }
+  ]
+}
+
+### POST create The Jack McEvoy series
+POST http://{{address}}/series
+Content-Type: application/json
+
+{
+  "title": "The Jack McEvoy",
+  "books": [
+    {
+      "bookTitle": "The Poet",
+      "order": 1
+    },
+    {
+      "bookTitle": "The Scarecrow",
+      "order": 2
+    },
+    {
+      "bookTitle": "Fair Warning",
+      "order": 3
+    }
+  ]
+}
+
+### POST create The Detective Stilwell
+POST http://{{address}}/series
+Content-Type: application/json
+
+{
+  "title": "The Detective Stilwell",
+  "books": [
+    {
+      "bookTitle": "Nightshade",
+      "order": 1
+    }
+  ]
+}

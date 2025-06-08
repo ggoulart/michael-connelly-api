@@ -20,6 +20,7 @@ type Dynamodb interface {
 	GetItem(ctx context.Context, input *dynamodb.GetItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.GetItemOutput, error)
 	UpdateItem(ctx context.Context, input *dynamodb.UpdateItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.UpdateItemOutput, error)
 	TransactWriteItems(ctx context.Context, input *dynamodb.TransactWriteItemsInput, optFns ...func(*dynamodb.Options)) (*dynamodb.TransactWriteItemsOutput, error)
+	CreateTable(ctx context.Context, params *dynamodb.CreateTableInput, optFns ...func(*dynamodb.Options)) (*dynamodb.CreateTableOutput, error)
 }
 
 var uniqueKeyTable = "unique_keys"
@@ -99,6 +100,37 @@ func (c *Client) GetByUniqueKey(ctx context.Context, tableName string, value str
 	}
 
 	return item, nil
+}
+
+func (c *Client) CreateTables(ctx context.Context) error {
+	tables := []struct {
+		Name     string
+		HashKey  string
+		HashType types.ScalarAttributeType
+	}{
+		{"unique_keys", "id", types.ScalarAttributeTypeS},
+		{"books", "id", types.ScalarAttributeTypeS},
+		{"characters", "id", types.ScalarAttributeTypeS},
+		{"series", "id", types.ScalarAttributeTypeS},
+	}
+
+	for _, tbl := range tables {
+		_, err := c.dynamoDB.CreateTable(ctx, &dynamodb.CreateTableInput{
+			TableName:            aws.String(tbl.Name),
+			AttributeDefinitions: []types.AttributeDefinition{{AttributeName: aws.String(tbl.HashKey), AttributeType: tbl.HashType}},
+			KeySchema:            []types.KeySchemaElement{{AttributeName: aws.String(tbl.HashKey), KeyType: types.KeyTypeHash}},
+			BillingMode:          types.BillingModePayPerRequest,
+		})
+		if err != nil {
+			var resourceInUse *types.ResourceInUseException
+			if errors.As(err, &resourceInUse) {
+				continue
+			}
+			return fmt.Errorf("failed to create table %s: %w", tbl.Name, err)
+		}
+	}
+
+	return nil
 }
 
 type UniqueKeys struct {

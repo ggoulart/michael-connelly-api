@@ -230,3 +230,8 @@ func (m *MockDynamoDBClient) TransactWriteItems(ctx context.Context, params *dyn
 	args := m.Called(ctx, params, optFns)
 	return args.Get(0).(*dynamodb.TransactWriteItemsOutput), args.Error(1)
 }
+
+func (m *MockDynamoDBClient) CreateTable(ctx context.Context, params *dynamodb.CreateTableInput, optFns ...func(*dynamodb.Options)) (*dynamodb.CreateTableOutput, error) {
+	args := m.Called(ctx, params, optFns)
+	return args.Get(0).(*dynamodb.CreateTableOutput), args.Error(1)
+}
