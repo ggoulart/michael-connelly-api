@@ -75,9 +75,15 @@ func (r *Repository) GetByName(ctx context.Context, characterName string) (Chara
 }
 
 type DBCharacter struct {
-	ID    string   `dynamodbav:"id"`
-	Name  string   `dynamodbav:"name"`
-	Books []string `dynamodbav:"books"`
+	ID     string    `dynamodbav:"id"`
+	Name   string    `dynamodbav:"name"`
+	Books  []string  `dynamodbav:"books"`
+	Actors []DBActor `dynamodbav:"actors"`
+}
+
+type DBActor struct {
+	Name string `dynamodbav:"name"`
+	IMDB string `dynamodbav:"imdb"`
 }
 
 func NewDBCharacter(character Character) DBCharacter {
@@ -86,10 +92,16 @@ func NewDBCharacter(character Character) DBCharacter {
 		bookIds = append(bookIds, b.ID)
 	}
 
+	var actors []DBActor
+	for _, a := range character.Actors {
+		actors = append(actors, DBActor{Name: a.Name, IMDB: a.IMDB})
+	}
+
 	return DBCharacter{
-		ID:    character.ID,
-		Name:  character.Name,
-		Books: bookIds,
+		ID:     character.ID,
+		Name:   character.Name,
+		Books:  bookIds,
+		Actors: actors,
 	}
 }
 

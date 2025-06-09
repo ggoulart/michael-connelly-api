@@ -23,19 +23,19 @@ func NewController(manager Manager) *Controller {
 }
 
 func (c *Controller) Create(ctx *gin.Context) {
-	var characterRequest CharacterRequest
-	if err := ctx.BindJSON(&characterRequest); err != nil {
+	var characterDTO CharacterDTO
+	if err := ctx.BindJSON(&characterDTO); err != nil {
 		ctx.Error(err)
 		return
 	}
 
-	createdCharacter, err := c.manager.Create(ctx, characterRequest.ToCharacter(), characterRequest.BookTitles)
+	createdCharacter, err := c.manager.Create(ctx, characterDTO.ToCharacter(), characterDTO.BookTitles)
 	if err != nil {
 		ctx.Error(err)
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, NewCharacterResponse(createdCharacter))
+	ctx.JSON(http.StatusCreated, NewCharacterDTO(createdCharacter))
 }
 
 func (c *Controller) GetBy(ctx *gin.Context) {
@@ -62,7 +62,7 @@ func (c *Controller) getById(ctx *gin.Context, characterID string) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, NewCharacterResponse(character))
+	ctx.JSON(http.StatusOK, NewCharacterDTO(character))
 }
 
 func (c *Controller) getByName(ctx *gin.Context, characterName string) {
@@ -72,39 +72,49 @@ func (c *Controller) getByName(ctx *gin.Context, characterName string) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, NewCharacterResponse(character))
-}
-
-type CharacterRequest struct {
-	Name       string   `json:"name" binding:"required"`
-	BookTitles []string `json:"bookTitles"`
-}
-
-func (r *CharacterRequest) ToCharacter() Character {
-	return Character{
-		Name: r.Name,
-	}
+	ctx.JSON(http.StatusOK, NewCharacterDTO(character))
 }
 
 type GetByRequest struct {
 	Character string `uri:"character" binding:"required"`
 }
 
-type CharacterResponse struct {
-	ID          string   `json:"id,omitempty"`
-	Name        string   `json:"name"`
-	BooksTitles []string `json:"booksTitles,omitempty"`
+type CharacterDTO struct {
+	ID         string     `json:"id,omitempty"`
+	Name       string     `json:"name" binding:"required"`
+	Actors     []ActorDTO `json:"actors,omitempty"`
+	BookTitles []string   `json:"bookTitles,omitempty"`
 }
 
-func NewCharacterResponse(character Character) CharacterResponse {
+type ActorDTO struct {
+	Name string `json:"name" binding:"required"`
+	IMDB string `json:"imdb" binding:"required"`
+}
+
+func NewCharacterDTO(character Character) CharacterDTO {
 	var booksTitles []string
 	for _, b := range character.Books {
 		booksTitles = append(booksTitles, b.Title)
 	}
 
-	return CharacterResponse{
-		ID:          character.ID,
-		Name:        character.Name,
-		BooksTitles: booksTitles,
+	return CharacterDTO{
+		ID:         character.ID,
+		Name:       character.Name,
+		BookTitles: booksTitles,
 	}
+}
+
+func (r *CharacterDTO) ToCharacter() Character {
+	var actorList []Actor
+
+	for _, actor := range r.Actors {
+		actorList = append(actorList, Actor{
+			Name: actor.Name,
+			IMDB: actor.IMDB,
+		})
+	}
+
+	character := Character{Name: r.Name, Actors: actorList}
+
+	return character
 }

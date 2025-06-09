@@ -55,7 +55,7 @@ func TestController_Create(t *testing.T) {
 			expected: func(r *httptest.ResponseRecorder, err error) {
 				assert.Nil(t, err)
 				assert.Equal(t, http.StatusCreated, r.Code)
-				assert.Equal(t, `{"id":"random-id","name":"Harry Bosch","booksTitles":["random-book-title"]}`, r.Body.String())
+				assert.Equal(t, `{"id":"random-id","name":"Harry Bosch","bookTitles":["random-book-title"]}`, r.Body.String())
 			},
 		},
 	}

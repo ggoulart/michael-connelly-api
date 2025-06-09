@@ -6,6 +6,12 @@ Content-Type: application/json
 
 {
   "name": "Harry Bosch",
+  "actors": [
+    {
+      "name":"Titus Welliver",
+      "imdb":  "https://www.imdb.com/name/nm0920038"
+    }
+  ],
   "bookTitles": [
     "The Black Echo",
     "The Black Ice",
@@ -47,6 +53,16 @@ Content-Type: application/json
 
 {
   "name": "Mickey Haller",
+  "actors": [
+    {
+      "name":"Manuel Garcia-Rulfo",
+      "imdb":  "https://www.imdb.com/pt/name/nm2636310"
+    },
+    {
+      "name":"Matthew McConaughey",
+      "imdb":  "https://www.imdb.com/name/nm0000190"
+    }
+  ],
   "bookTitles": [
     "The Lincoln Lawyer",
     "The Brass Verdict",
@@ -71,6 +87,12 @@ Content-Type: application/json
 
 {
   "name": "Renée Ballard",
+  "actors": [
+    {
+      "name":"Maggie Q",
+      "imdb":  "https://www.imdb.com/name/nm0702572"
+    }
+  ],
   "bookTitles": [
     "The Late Show",
     "Dark Sacred Night",
@@ -95,6 +117,17 @@ Content-Type: application/json
     "The Proving Ground",
     "A Darkness More Than Night",
     "The Brass Verdict"
+  ]
+}
+
+### POST create Detective Stilwell
+POST http://{{address}}/characters
+Content-Type: application/json
+
+{
+  "name": "Detective Stilwell",
+  "bookTitles": [
+    "Nightshade"
   ]
 }
 
