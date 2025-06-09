@@ -21,19 +21,19 @@ func NewController(manager Manager) *Controller {
 }
 
 func (c *Controller) Create(ctx *gin.Context) {
-	var createRequest CreateRequest
-	if err := ctx.BindJSON(&createRequest); err != nil {
+	var bookDTO BookDTO
+	if err := ctx.BindJSON(&bookDTO); err != nil {
 		ctx.Error(err)
 		return
 	}
 
-	createdBook, err := c.manager.Create(ctx, createRequest.ToBook())
+	createdBook, err := c.manager.Create(ctx, bookDTO.ToBook())
 	if err != nil {
 		ctx.Error(err)
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, NewBookResponse(createdBook))
+	ctx.JSON(http.StatusCreated, NewBookDTO(createdBook))
 }
 
 func (c *Controller) GetById(ctx *gin.Context) {
@@ -49,39 +49,57 @@ func (c *Controller) GetById(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, NewBookResponse(book))
+	ctx.JSON(http.StatusOK, NewBookDTO(book))
 }
 
-type CreateRequest struct {
-	Title string `json:"title" binding:"required"`
-	Year  int    `json:"year" binding:"required,gte=1956"`
-	Blurb string `json:"blurb"`
+type BookDTO struct {
+	ID          string          `json:"id,omitempty"`
+	Title       string          `json:"title" binding:"required"`
+	Year        int             `json:"year" binding:"required,gte=1956"`
+	Blurb       string          `json:"blurb"`
+	Adaptations []AdaptationDTO `json:"adaptations"`
 }
 
-func (r *CreateRequest) ToBook() Book {
+type AdaptationDTO struct {
+	Description string `json:"description" binding:"required"`
+	IMDB        string `json:"imdb" binding:"required"`
+}
+
+func NewBookDTO(book Book) BookDTO {
+	var adaptations []AdaptationDTO
+	for _, a := range book.Adaptations {
+		adaptations = append(adaptations, AdaptationDTO{
+			Description: a.Description,
+			IMDB:        a.IMDB,
+		})
+	}
+
+	return BookDTO{
+		ID:          book.ID,
+		Title:       book.Title,
+		Year:        book.Year,
+		Blurb:       book.Blurb,
+		Adaptations: adaptations,
+	}
+}
+
+func (r *BookDTO) ToBook() Book {
+	var adaptations []Adaptation
+	for _, a := range r.Adaptations {
+		adaptations = append(adaptations, Adaptation{
+			Description: a.Description,
+			IMDB:        a.IMDB,
+		})
+	}
+
 	return Book{
-		Title: r.Title,
-		Year:  r.Year,
-		Blurb: r.Blurb,
+		Title:       r.Title,
+		Year:        r.Year,
+		Blurb:       r.Blurb,
+		Adaptations: adaptations,
 	}
 }
 
 type GetByIDRequest struct {
 	BookID string `uri:"bookID" binding:"required"`
-}
-
-type BookResponse struct {
-	ID    string `json:"id,omitempty"`
-	Title string `json:"title" binding:"required"`
-	Year  int    `json:"year" binding:"required,gte=1956"`
-	Blurb string `json:"blurb"`
-}
-
-func NewBookResponse(book Book) BookResponse {
-	return BookResponse{
-		ID:    book.ID,
-		Title: book.Title,
-		Year:  book.Year,
-		Blurb: book.Blurb,
-	}
 }

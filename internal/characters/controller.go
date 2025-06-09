@@ -75,10 +75,6 @@ func (c *Controller) getByName(ctx *gin.Context, characterName string) {
 	ctx.JSON(http.StatusOK, NewCharacterDTO(character))
 }
 
-type GetByRequest struct {
-	Character string `uri:"character" binding:"required"`
-}
-
 type CharacterDTO struct {
 	ID         string     `json:"id,omitempty"`
 	Name       string     `json:"name" binding:"required"`
@@ -117,4 +113,8 @@ func (r *CharacterDTO) ToCharacter() Character {
 	character := Character{Name: r.Name, Actors: actorList}
 
 	return character
+}
+
+type GetByRequest struct {
+	Character string `uri:"character" binding:"required"`
 }

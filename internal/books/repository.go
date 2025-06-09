@@ -90,26 +90,52 @@ func (r *Repository) GetBookListByTitles(ctx context.Context, bookTitles []strin
 }
 
 type DBBook struct {
-	ID    string `dynamodbav:"id"`
-	Title string `dynamodbav:"title"`
-	Year  int    `dynamodbav:"year"`
-	Blurb string `dynamodbav:"blurb"`
+	ID          string         `dynamodbav:"id"`
+	Title       string         `dynamodbav:"title"`
+	Year        int            `dynamodbav:"year"`
+	Blurb       string         `dynamodbav:"blurb"`
+	Adaptations []DBAdaptation `dynamodbav:"adaptations"`
+}
+
+type DBAdaptation struct {
+	Description string `dynamodbav:"description"`
+	IMDB        string `dynamodbav:"imdb"`
 }
 
 func NewDBBook(book Book) DBBook {
+	var adaptations []DBAdaptation
+
+	for _, a := range book.Adaptations {
+		adaptations = append(adaptations, DBAdaptation{
+			Description: a.Description,
+			IMDB:        a.IMDB,
+		})
+	}
+
 	return DBBook{
-		ID:    book.ID,
-		Title: book.Title,
-		Year:  book.Year,
-		Blurb: book.Blurb,
+		ID:          book.ID,
+		Title:       book.Title,
+		Year:        book.Year,
+		Blurb:       book.Blurb,
+		Adaptations: adaptations,
 	}
 }
 
 func (b *DBBook) ToBook() Book {
+	var adaptations []Adaptation
+
+	for _, a := range b.Adaptations {
+		adaptations = append(adaptations, Adaptation{
+			Description: a.Description,
+			IMDB:        a.IMDB,
+		})
+	}
+
 	return Book{
-		ID:    b.ID,
-		Title: b.Title,
-		Year:  b.Year,
-		Blurb: b.Blurb,
+		ID:          b.ID,
+		Title:       b.Title,
+		Year:        b.Year,
+		Blurb:       b.Blurb,
+		Adaptations: adaptations,
 	}
 }

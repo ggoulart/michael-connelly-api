@@ -137,6 +137,12 @@ Content-Type: application/json
 
 {
   "name": "Rachel Walling",
+  "actors": [
+    {
+      "name": "Julie St. Claire",
+      "imdb": "https://www.imdb.com/name/nm0002930"
+    }
+  ],
   "bookTitles": [
     "The Poet",
     "The Narrows",
@@ -156,6 +162,12 @@ Content-Type: application/json
 
 {
   "name": "Terry McCaleb",
+  "actors": [
+    {
+      "name": "Clint Eastwood",
+      "imdb": "https://www.imdb.com/name/nm0000142"
+    }
+  ],
   "bookTitles": [
     "Blood Work",
     "A Darkness More Than Night",
@@ -183,5 +195,27 @@ Content-Type: application/json
   "name": "Henry Pierce",
   "bookTitles": [
     "Chasing The Dime"
+  ]
+}
+
+### POST create Eleanor Wish
+POST http://{{address}}/characters
+Content-Type: application/json
+
+{
+  "name": "Eleanor Wish",
+  "actors": [
+    {
+      "name": "Sarah Clarke",
+      "imdb": "https://www.imdb.com/name/nm1020124"
+    }
+  ],
+  "bookTitles": [
+    "Nine Dragons",
+    "The Narrows",
+    "Lost Light",
+    "Angels Flight",
+    "Trunk Music",
+    "The Black Echo"
   ]
 }

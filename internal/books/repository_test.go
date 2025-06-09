@@ -24,7 +24,17 @@ func TestRepository_Save(t *testing.T) {
 		{
 			name: "when failed to save book because already exists",
 			setup: func(m *MockDynamoDBClient) {
-				item := map[string]types.AttributeValue{"id": &types.AttributeValueMemberS{Value: ""}, "title": &types.AttributeValueMemberS{Value: "The Black Echo"}, "blurb": &types.AttributeValueMemberS{Value: ""}, "year": &types.AttributeValueMemberN{Value: "0"}}
+				item := map[string]types.AttributeValue{
+					"id":    &types.AttributeValueMemberS{Value: ""},
+					"title": &types.AttributeValueMemberS{Value: "The Black Echo"},
+					"blurb": &types.AttributeValueMemberS{Value: "For LAPD homicide cop Harry Bosch — hero, maverick, nighthawk — the body in the drainpipe at Mulholland dam is more than another anonymous statistic.  This one is personal. The dead man, Billy Meadows, was a fellow Vietnam “tunnel rat” who fought side by side with him in a nightmare underground war that brought them to the depths of hell.  Now, Bosch is about to relive the horrors of Nam.  From a dangerous maze of blind alleys to a daring criminal heist beneath the city to the tortuous link that must be uncovered, his survival instincts will once again be tested to their limit. Joining with an enigmatic female FBI agent, pitted against enemies within his own department, Bosch must make the agonizing choice between justice and vengeance, as he tracks down a killer whose true face will shock him. The Black Echo won the Edgar Award for Best First Mystery Novel awarded by the Mystery Writers of America."},
+					"year":  &types.AttributeValueMemberN{Value: "1992"},
+					"adaptations": &types.AttributeValueMemberL{Value: []types.AttributeValue{
+						&types.AttributeValueMemberM{Value: map[string]types.AttributeValue{
+							"description": &types.AttributeValueMemberS{Value: "Bosch S03"},
+							"imdb":        &types.AttributeValueMemberS{Value: "https://www.imdb.com/title/tt3502248/episodes/?season=3"},
+						}}}},
+				}
 				m.On("Save", ctx, "table-name", item, "The Black Echo").Return("", dynamo.ErrDuplicated).Once()
 				output := map[string]types.AttributeValue{"id": &types.AttributeValueMemberS{Value: "random-id"}, "title": &types.AttributeValueMemberS{Value: "The Black Echo"}}
 				m.On("GetByUniqueKey", ctx, "table-name", "The Black Echo").Return(output, nil).Once()
@@ -34,7 +44,17 @@ func TestRepository_Save(t *testing.T) {
 		{
 			name: "when failed to save book",
 			setup: func(m *MockDynamoDBClient) {
-				item := map[string]types.AttributeValue{"id": &types.AttributeValueMemberS{Value: ""}, "title": &types.AttributeValueMemberS{Value: "The Black Echo"}, "blurb": &types.AttributeValueMemberS{Value: ""}, "year": &types.AttributeValueMemberN{Value: "0"}}
+				item := map[string]types.AttributeValue{
+					"id":    &types.AttributeValueMemberS{Value: ""},
+					"title": &types.AttributeValueMemberS{Value: "The Black Echo"},
+					"blurb": &types.AttributeValueMemberS{Value: "For LAPD homicide cop Harry Bosch — hero, maverick, nighthawk — the body in the drainpipe at Mulholland dam is more than another anonymous statistic.  This one is personal. The dead man, Billy Meadows, was a fellow Vietnam “tunnel rat” who fought side by side with him in a nightmare underground war that brought them to the depths of hell.  Now, Bosch is about to relive the horrors of Nam.  From a dangerous maze of blind alleys to a daring criminal heist beneath the city to the tortuous link that must be uncovered, his survival instincts will once again be tested to their limit. Joining with an enigmatic female FBI agent, pitted against enemies within his own department, Bosch must make the agonizing choice between justice and vengeance, as he tracks down a killer whose true face will shock him. The Black Echo won the Edgar Award for Best First Mystery Novel awarded by the Mystery Writers of America."},
+					"year":  &types.AttributeValueMemberN{Value: "1992"},
+					"adaptations": &types.AttributeValueMemberL{Value: []types.AttributeValue{
+						&types.AttributeValueMemberM{Value: map[string]types.AttributeValue{
+							"description": &types.AttributeValueMemberS{Value: "Bosch S03"},
+							"imdb":        &types.AttributeValueMemberS{Value: "https://www.imdb.com/title/tt3502248/episodes/?season=3"},
+						}}}},
+				}
 				m.On("Save", ctx, "table-name", item, "The Black Echo").Return("", assert.AnError).Once()
 			},
 			wantErr: assert.AnError,
@@ -42,10 +62,20 @@ func TestRepository_Save(t *testing.T) {
 		{
 			name: "when successfully saved book",
 			setup: func(m *MockDynamoDBClient) {
-				item := map[string]types.AttributeValue{"id": &types.AttributeValueMemberS{Value: ""}, "title": &types.AttributeValueMemberS{Value: "The Black Echo"}, "blurb": &types.AttributeValueMemberS{Value: ""}, "year": &types.AttributeValueMemberN{Value: "0"}}
+				item := map[string]types.AttributeValue{
+					"id":    &types.AttributeValueMemberS{Value: ""},
+					"title": &types.AttributeValueMemberS{Value: "The Black Echo"},
+					"blurb": &types.AttributeValueMemberS{Value: "For LAPD homicide cop Harry Bosch — hero, maverick, nighthawk — the body in the drainpipe at Mulholland dam is more than another anonymous statistic.  This one is personal. The dead man, Billy Meadows, was a fellow Vietnam “tunnel rat” who fought side by side with him in a nightmare underground war that brought them to the depths of hell.  Now, Bosch is about to relive the horrors of Nam.  From a dangerous maze of blind alleys to a daring criminal heist beneath the city to the tortuous link that must be uncovered, his survival instincts will once again be tested to their limit. Joining with an enigmatic female FBI agent, pitted against enemies within his own department, Bosch must make the agonizing choice between justice and vengeance, as he tracks down a killer whose true face will shock him. The Black Echo won the Edgar Award for Best First Mystery Novel awarded by the Mystery Writers of America."},
+					"year":  &types.AttributeValueMemberN{Value: "1992"},
+					"adaptations": &types.AttributeValueMemberL{Value: []types.AttributeValue{
+						&types.AttributeValueMemberM{Value: map[string]types.AttributeValue{
+							"description": &types.AttributeValueMemberS{Value: "Bosch S03"},
+							"imdb":        &types.AttributeValueMemberS{Value: "https://www.imdb.com/title/tt3502248/episodes/?season=3"},
+						}}}},
+				}
 				m.On("Save", ctx, "table-name", item, "The Black Echo").Return("random-id", nil).Once()
 			},
-			want: Book{ID: "random-id", Title: "The Black Echo", Year: 0, Blurb: ""},
+			want: Book{ID: "random-id", Title: "The Black Echo", Year: 1992, Blurb: "For LAPD homicide cop Harry Bosch — hero, maverick, nighthawk — the body in the drainpipe at Mulholland dam is more than another anonymous statistic.  This one is personal. The dead man, Billy Meadows, was a fellow Vietnam “tunnel rat” who fought side by side with him in a nightmare underground war that brought them to the depths of hell.  Now, Bosch is about to relive the horrors of Nam.  From a dangerous maze of blind alleys to a daring criminal heist beneath the city to the tortuous link that must be uncovered, his survival instincts will once again be tested to their limit. Joining with an enigmatic female FBI agent, pitted against enemies within his own department, Bosch must make the agonizing choice between justice and vengeance, as he tracks down a killer whose true face will shock him. The Black Echo won the Edgar Award for Best First Mystery Novel awarded by the Mystery Writers of America.", Adaptations: []Adaptation{{Description: "Bosch S03", IMDB: "https://www.imdb.com/title/tt3502248/episodes/?season=3"}}},
 		},
 	}
 	for _, tt := range tests {
@@ -55,7 +85,12 @@ func TestRepository_Save(t *testing.T) {
 
 			r := NewRepository(mockDynamoDBClient, "table-name")
 
-			got, err := r.Save(ctx, Book{Title: "The Black Echo"})
+			got, err := r.Save(ctx, Book{
+				Title:       "The Black Echo",
+				Year:        1992,
+				Blurb:       "For LAPD homicide cop Harry Bosch — hero, maverick, nighthawk — the body in the drainpipe at Mulholland dam is more than another anonymous statistic.  This one is personal. The dead man, Billy Meadows, was a fellow Vietnam “tunnel rat” who fought side by side with him in a nightmare underground war that brought them to the depths of hell.  Now, Bosch is about to relive the horrors of Nam.  From a dangerous maze of blind alleys to a daring criminal heist beneath the city to the tortuous link that must be uncovered, his survival instincts will once again be tested to their limit. Joining with an enigmatic female FBI agent, pitted against enemies within his own department, Bosch must make the agonizing choice between justice and vengeance, as he tracks down a killer whose true face will shock him. The Black Echo won the Edgar Award for Best First Mystery Novel awarded by the Mystery Writers of America.",
+				Adaptations: []Adaptation{{Description: "Bosch S03", IMDB: "https://www.imdb.com/title/tt3502248/episodes/?season=3"}},
+			})
 
 			assert.Equal(t, tt.want, got)
 			assert.Equal(t, tt.wantErr, err)

@@ -21,36 +21,55 @@ func NewController(manager Manager) *Controller {
 }
 
 func (c *Controller) Create(ctx *gin.Context) {
-	var createRequest CreateRequest
-	if err := ctx.BindJSON(&createRequest); err != nil {
+	var seriesDTO SeriesDTO
+	if err := ctx.BindJSON(&seriesDTO); err != nil {
 		ctx.Error(err)
 		return
 	}
 
-	createdSeries, err := c.manager.Create(ctx, createRequest.ToSeries(), createRequest.ToBooksOrderList())
+	createdSeries, err := c.manager.Create(ctx, seriesDTO.ToSeries(), seriesDTO.ToBooksOrderList())
 	if err != nil {
 		ctx.Error(err)
 		return
 	}
 
-	ctx.JSON(http.StatusCreated, NewSeriesResponse(createdSeries))
+	ctx.JSON(http.StatusCreated, NewSeriesDTO(createdSeries))
 }
 
-type CreateRequest struct {
-	Title string `json:"title" binding:"required"`
-	Books []struct {
-		BookTitle string `json:"bookTitle" binding:"required"`
-		Order     int    `json:"order" binding:"required"`
-	} `json:"books" binding:"required"`
+type SeriesDTO struct {
+	ID    string          `json:"id"`
+	Title string          `json:"title" binding:"required"`
+	Books []BooksOrderDTO `json:"books"`
 }
 
-func (r *CreateRequest) ToSeries() Series {
+type BooksOrderDTO struct {
+	BookTitle string `json:"bookTitle" binding:"required"`
+	Order     int    `json:"order" binding:"required"`
+}
+
+func NewSeriesDTO(series Series) SeriesDTO {
+	var bookTitles []BooksOrderDTO
+	for _, b := range series.Books {
+		bookTitles = append(bookTitles, BooksOrderDTO{
+			BookTitle: b.Book.Title,
+			Order:     b.Order,
+		})
+	}
+
+	return SeriesDTO{
+		ID:    series.ID,
+		Title: series.Title,
+		Books: bookTitles,
+	}
+}
+
+func (r *SeriesDTO) ToSeries() Series {
 	return Series{
 		Title: r.Title,
 	}
 }
 
-func (r *CreateRequest) ToBooksOrderList() []BooksOrder {
+func (r *SeriesDTO) ToBooksOrderList() []BooksOrder {
 	var booksOrderList []BooksOrder
 
 	for _, b := range r.Books {
@@ -63,31 +82,4 @@ func (r *CreateRequest) ToBooksOrderList() []BooksOrder {
 	}
 
 	return booksOrderList
-}
-
-type SeriesResponse struct {
-	ID    string               `json:"id"`
-	Title string               `json:"title"`
-	Books []BooksOrderResponse `json:"books"`
-}
-
-type BooksOrderResponse struct {
-	BookTitle string `json:"bookTitle"`
-	Order     int    `json:"order" binding:"required"`
-}
-
-func NewSeriesResponse(series Series) SeriesResponse {
-	var bookTitles []BooksOrderResponse
-	for _, b := range series.Books {
-		bookTitles = append(bookTitles, BooksOrderResponse{
-			BookTitle: b.Book.Title,
-			Order:     b.Order,
-		})
-	}
-
-	return SeriesResponse{
-		ID:    series.ID,
-		Title: series.Title,
-		Books: bookTitles,
-	}
 }
