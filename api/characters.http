@@ -8,8 +8,8 @@ Content-Type: application/json
   "name": "Harry Bosch",
   "actors": [
     {
-      "name":"Titus Welliver",
-      "imdb":  "https://www.imdb.com/name/nm0920038"
+      "name": "Titus Welliver",
+      "imdb": "https://www.imdb.com/name/nm0920038"
     }
   ],
   "bookTitles": [

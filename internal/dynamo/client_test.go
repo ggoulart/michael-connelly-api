@@ -202,6 +202,64 @@ func TestClient_GetByUniqueKey(t *testing.T) {
 	}
 }
 
+func TestClient_CreateTables(t *testing.T) {
+	ctx := context.Background()
+	tests := []struct {
+		name    string
+		setup   func(*MockDynamoDBClient)
+		wantErr error
+	}{
+		{
+			name: "when failed to create tables",
+			setup: func(m *MockDynamoDBClient) {
+				input := &dynamodb.CreateTableInput{
+					TableName:            aws.String("unique_keys"),
+					AttributeDefinitions: []types.AttributeDefinition{{AttributeName: aws.String("id"), AttributeType: types.ScalarAttributeTypeS}},
+					KeySchema:            []types.KeySchemaElement{{AttributeName: aws.String("id"), KeyType: types.KeyTypeHash}},
+					BillingMode:          types.BillingModePayPerRequest,
+				}
+				m.On("CreateTable", ctx, input, mock.Anything).Return(&dynamodb.CreateTableOutput{}, assert.AnError).Once()
+			},
+			wantErr: fmt.Errorf("failed to create table %s: %w", "unique_keys", assert.AnError),
+		},
+		{
+			name: "when all tables already exists",
+			setup: func(m *MockDynamoDBClient) {
+				input := dynamodb.CreateTableInput{
+					AttributeDefinitions: []types.AttributeDefinition{{AttributeName: aws.String("id"), AttributeType: types.ScalarAttributeTypeS}},
+					KeySchema:            []types.KeySchemaElement{{AttributeName: aws.String("id"), KeyType: types.KeyTypeHash}},
+					BillingMode:          types.BillingModePayPerRequest,
+				}
+				uniqueKesyInput := input
+				uniqueKesyInput.TableName = aws.String("unique_keys")
+				err := &types.ResourceInUseException{}
+				m.On("CreateTable", ctx, &uniqueKesyInput, mock.Anything).Return(&dynamodb.CreateTableOutput{}, err).Once()
+				booksInput := input
+				booksInput.TableName = aws.String("books")
+				m.On("CreateTable", ctx, &booksInput, mock.Anything).Return(&dynamodb.CreateTableOutput{}, err).Once()
+				charactersInput := input
+				charactersInput.TableName = aws.String("characters")
+				m.On("CreateTable", ctx, &charactersInput, mock.Anything).Return(&dynamodb.CreateTableOutput{}, err).Once()
+				seriesInput := input
+				seriesInput.TableName = aws.String("series")
+				m.On("CreateTable", ctx, &seriesInput, mock.Anything).Return(&dynamodb.CreateTableOutput{}, err).Once()
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockDynamoDBClient := new(MockDynamoDBClient)
+			tt.setup(mockDynamoDBClient)
+			c := NewClient(mockDynamoDBClient, nil)
+
+			err := c.CreateTables(ctx)
+
+			assert.Equal(t, tt.wantErr, err)
+			mockDynamoDBClient.AssertExpectations(t)
+		})
+	}
+}
+
 type MockDynamoDBClient struct {
 	mock.Mock
 }

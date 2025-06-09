@@ -29,7 +29,7 @@ func TestRepository_Save(t *testing.T) {
 				item["id"] = &types.AttributeValueMemberS{Value: ""}
 				item["name"] = &types.AttributeValueMemberS{Value: "Harry Bosch"}
 				item["books"] = &types.AttributeValueMemberL{Value: []types.AttributeValue{&types.AttributeValueMemberS{Value: "book-id-1"}, &types.AttributeValueMemberS{Value: "book-id-2"}}}
-				item["actors"] = &types.AttributeValueMemberNULL{Value: true}
+				item["actors"] = &types.AttributeValueMemberL{Value: []types.AttributeValue{&types.AttributeValueMemberM{Value: map[string]types.AttributeValue{"name": &types.AttributeValueMemberS{Value: "Titus Welliver"}, "imdb": &types.AttributeValueMemberS{Value: "https://www.imdb.com/name/nm0920038"}}}}}
 				m.On("Save", ctx, "some-table-name", item, "Harry Bosch").Return("", dynamo.ErrDuplicated).Once()
 				output := map[string]types.AttributeValue{"id": &types.AttributeValueMemberS{Value: "random-id"}, "name": &types.AttributeValueMemberS{Value: "Harry Bosch"}}
 				m.On("GetByUniqueKey", ctx, "some-table-name", "Harry Bosch").Return(output, nil).Once()
@@ -43,7 +43,7 @@ func TestRepository_Save(t *testing.T) {
 				item["id"] = &types.AttributeValueMemberS{Value: ""}
 				item["name"] = &types.AttributeValueMemberS{Value: "Harry Bosch"}
 				item["books"] = &types.AttributeValueMemberL{Value: []types.AttributeValue{&types.AttributeValueMemberS{Value: "book-id-1"}, &types.AttributeValueMemberS{Value: "book-id-2"}}}
-				item["actors"] = &types.AttributeValueMemberNULL{Value: true}
+				item["actors"] = &types.AttributeValueMemberL{Value: []types.AttributeValue{&types.AttributeValueMemberM{Value: map[string]types.AttributeValue{"name": &types.AttributeValueMemberS{Value: "Titus Welliver"}, "imdb": &types.AttributeValueMemberS{Value: "https://www.imdb.com/name/nm0920038"}}}}}
 				m.On("Save", ctx, "some-table-name", item, "Harry Bosch").Return("", assert.AnError).Once()
 			},
 			wantErr: assert.AnError,
@@ -55,10 +55,10 @@ func TestRepository_Save(t *testing.T) {
 				item["id"] = &types.AttributeValueMemberS{Value: ""}
 				item["name"] = &types.AttributeValueMemberS{Value: "Harry Bosch"}
 				item["books"] = &types.AttributeValueMemberL{Value: []types.AttributeValue{&types.AttributeValueMemberS{Value: "book-id-1"}, &types.AttributeValueMemberS{Value: "book-id-2"}}}
-				item["actors"] = &types.AttributeValueMemberNULL{Value: true}
+				item["actors"] = &types.AttributeValueMemberL{Value: []types.AttributeValue{&types.AttributeValueMemberM{Value: map[string]types.AttributeValue{"name": &types.AttributeValueMemberS{Value: "Titus Welliver"}, "imdb": &types.AttributeValueMemberS{Value: "https://www.imdb.com/name/nm0920038"}}}}}
 				m.On("Save", ctx, "some-table-name", item, "Harry Bosch").Return("c6767b2d-438b-4d4c-8b1a-659130a640ca", nil)
 			},
-			want: Character{ID: "c6767b2d-438b-4d4c-8b1a-659130a640ca", Name: "Harry Bosch", Books: []books.Book{{ID: "book-id-1"}, {ID: "book-id-2"}}},
+			want: Character{ID: "c6767b2d-438b-4d4c-8b1a-659130a640ca", Name: "Harry Bosch", Books: []books.Book{{ID: "book-id-1"}, {ID: "book-id-2"}}, Actors: []Actor{{Name: "Titus Welliver", IMDB: "https://www.imdb.com/name/nm0920038"}}},
 		},
 	}
 	for _, tt := range tests {
@@ -68,7 +68,7 @@ func TestRepository_Save(t *testing.T) {
 
 			r := NewRepository(mockDynamoDBClient, "some-table-name")
 
-			character := Character{Name: "Harry Bosch", Books: []books.Book{{ID: "book-id-1"}, {ID: "book-id-2"}}}
+			character := Character{Name: "Harry Bosch", Actors: []Actor{{Name: "Titus Welliver", IMDB: "https://www.imdb.com/name/nm0920038"}}, Books: []books.Book{{ID: "book-id-1"}, {ID: "book-id-2"}}}
 			got, err := r.Save(ctx, character)
 
 			assert.Equal(t, got, tt.want)

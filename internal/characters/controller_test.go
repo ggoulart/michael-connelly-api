@@ -46,16 +46,16 @@ func TestController_Create(t *testing.T) {
 		},
 		{
 			name:    "when create character is successful",
-			reqBody: `{"name":"Harry Bosch", "bookTitles": ["random-book-title"]}`,
+			reqBody: `{"name":"Harry Bosch", "actors": [{"name":"Titus Welliver", "imdb":  "https://www.imdb.com/name/nm0920038"}], "bookTitles": ["The Black Echo"]}`,
 			setup: func(m *ManagerMock) {
-				reqCharacter := Character{Name: "Harry Bosch"}
-				respCharacter := Character{ID: "random-id", Name: "Harry Bosch", Books: []books.Book{{Title: "random-book-title"}}}
-				m.On("Create", mock.Anything, reqCharacter, []string{"random-book-title"}).Return(respCharacter, nil).Once()
+				reqCharacter := Character{Name: "Harry Bosch", Actors: []Actor{{Name: "Titus Welliver", IMDB: "https://www.imdb.com/name/nm0920038"}}}
+				respCharacter := Character{ID: "random-id", Name: "Harry Bosch", Books: []books.Book{{Title: "The Black Echo"}}}
+				m.On("Create", mock.Anything, reqCharacter, []string{"The Black Echo"}).Return(respCharacter, nil).Once()
 			},
 			expected: func(r *httptest.ResponseRecorder, err error) {
 				assert.Nil(t, err)
 				assert.Equal(t, http.StatusCreated, r.Code)
-				assert.Equal(t, `{"id":"random-id","name":"Harry Bosch","bookTitles":["random-book-title"]}`, r.Body.String())
+				assert.Equal(t, `{"id":"random-id","name":"Harry Bosch","bookTitles":["The Black Echo"]}`, r.Body.String())
 			},
 		},
 	}
