@@ -29,6 +29,7 @@ func TestRepository_Save(t *testing.T) {
 				item["id"] = &types.AttributeValueMemberS{Value: ""}
 				item["name"] = &types.AttributeValueMemberS{Value: "Harry Bosch"}
 				item["books"] = &types.AttributeValueMemberL{Value: []types.AttributeValue{&types.AttributeValueMemberS{Value: "book-id-1"}, &types.AttributeValueMemberS{Value: "book-id-2"}}}
+				item["actors"] = &types.AttributeValueMemberNULL{Value: true}
 				m.On("Save", ctx, "some-table-name", item, "Harry Bosch").Return("", dynamo.ErrDuplicated).Once()
 				output := map[string]types.AttributeValue{"id": &types.AttributeValueMemberS{Value: "random-id"}, "name": &types.AttributeValueMemberS{Value: "Harry Bosch"}}
 				m.On("GetByUniqueKey", ctx, "some-table-name", "Harry Bosch").Return(output, nil).Once()
@@ -42,6 +43,7 @@ func TestRepository_Save(t *testing.T) {
 				item["id"] = &types.AttributeValueMemberS{Value: ""}
 				item["name"] = &types.AttributeValueMemberS{Value: "Harry Bosch"}
 				item["books"] = &types.AttributeValueMemberL{Value: []types.AttributeValue{&types.AttributeValueMemberS{Value: "book-id-1"}, &types.AttributeValueMemberS{Value: "book-id-2"}}}
+				item["actors"] = &types.AttributeValueMemberNULL{Value: true}
 				m.On("Save", ctx, "some-table-name", item, "Harry Bosch").Return("", assert.AnError).Once()
 			},
 			wantErr: assert.AnError,
@@ -53,6 +55,7 @@ func TestRepository_Save(t *testing.T) {
 				item["id"] = &types.AttributeValueMemberS{Value: ""}
 				item["name"] = &types.AttributeValueMemberS{Value: "Harry Bosch"}
 				item["books"] = &types.AttributeValueMemberL{Value: []types.AttributeValue{&types.AttributeValueMemberS{Value: "book-id-1"}, &types.AttributeValueMemberS{Value: "book-id-2"}}}
+				item["actors"] = &types.AttributeValueMemberNULL{Value: true}
 				m.On("Save", ctx, "some-table-name", item, "Harry Bosch").Return("c6767b2d-438b-4d4c-8b1a-659130a640ca", nil)
 			},
 			want: Character{ID: "c6767b2d-438b-4d4c-8b1a-659130a640ca", Name: "Harry Bosch", Books: []books.Book{{ID: "book-id-1"}, {ID: "book-id-2"}}},

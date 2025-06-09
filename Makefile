@@ -1,6 +1,8 @@
 APP_NAME := michael-connelly-api
 BUILD_DIR := ./cmd
 
+.PHONY: build run test clean
+
 build:
 	GOOS=linux GOARCH=amd64 go build -o $(APP_NAME) $(BUILD_DIR)
 
