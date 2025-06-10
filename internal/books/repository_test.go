@@ -125,10 +125,17 @@ func TestRepository_GetById(t *testing.T) {
 		{
 			name: "when successfully get book by id",
 			setup: func(m *MockDynamoDBClient) {
-				item := map[string]types.AttributeValue{"id": &types.AttributeValueMemberS{Value: "random-id"}, "title": &types.AttributeValueMemberS{Value: "The Black Echo"}}
+				item := map[string]types.AttributeValue{
+					"id": &types.AttributeValueMemberS{Value: "random-id"},
+					"adaptations": &types.AttributeValueMemberL{Value: []types.AttributeValue{
+						&types.AttributeValueMemberM{Value: map[string]types.AttributeValue{
+							"description": &types.AttributeValueMemberS{Value: "Bosch S03"},
+							"imdb":        &types.AttributeValueMemberS{Value: "https://www.imdb.com/title/tt3502248/episodes/?season=3"},
+						}}}},
+				}
 				m.On("GetByID", ctx, "table-name", "random-id").Return(item, nil).Once()
 			},
-			want: Book{ID: "random-id", Title: "The Black Echo"},
+			want: Book{ID: "random-id", Title: "", Year: 0, Blurb: "", Adaptations: []Adaptation{{Description: "Bosch S03", IMDB: "https://www.imdb.com/title/tt3502248/episodes/?season=3"}}},
 		},
 	}
 	for _, tt := range tests {

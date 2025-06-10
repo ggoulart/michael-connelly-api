@@ -57,7 +57,7 @@ type BookDTO struct {
 	Title       string          `json:"title" binding:"required"`
 	Year        int             `json:"year" binding:"required,gte=1956"`
 	Blurb       string          `json:"blurb"`
-	Adaptations []AdaptationDTO `json:"adaptations"`
+	Adaptations []AdaptationDTO `json:"adaptations,omitempty"`
 }
 
 type AdaptationDTO struct {

@@ -26,7 +26,7 @@ func NewRepository(dynamoDBClient DynamoDBClient, tableName string) *Repository 
 }
 
 func (r *Repository) Save(ctx context.Context, book Book) (Book, error) {
-	bookItem, err := attributevalue.MarshalMap(NewDBBook(book))
+	bookItem, err := attributevalue.MarshalMap(newDBBook(book))
 	if err != nil {
 		return Book{}, fmt.Errorf("failed to marshal book: %w", err)
 	}
@@ -56,7 +56,7 @@ func (r *Repository) GetById(ctx context.Context, bookID string) (Book, error) {
 		return Book{}, fmt.Errorf("failed to unmarshal book: %w", err)
 	}
 
-	return dbBook.ToBook(), nil
+	return dbBook.toBook(), nil
 }
 
 func (r *Repository) GetByTitle(ctx context.Context, bookTitle string) (Book, error) {
@@ -71,7 +71,7 @@ func (r *Repository) GetByTitle(ctx context.Context, bookTitle string) (Book, er
 		return Book{}, fmt.Errorf("failed to unmarshal book: %w", err)
 	}
 
-	return dbBook.ToBook(), nil
+	return dbBook.toBook(), nil
 }
 
 func (r *Repository) GetBookListByTitles(ctx context.Context, bookTitles []string) ([]Book, error) {
@@ -102,7 +102,7 @@ type DBAdaptation struct {
 	IMDB        string `dynamodbav:"imdb"`
 }
 
-func NewDBBook(book Book) DBBook {
+func newDBBook(book Book) DBBook {
 	var adaptations []DBAdaptation
 
 	for _, a := range book.Adaptations {
@@ -121,7 +121,7 @@ func NewDBBook(book Book) DBBook {
 	}
 }
 
-func (b *DBBook) ToBook() Book {
+func (b *DBBook) toBook() Book {
 	var adaptations []Adaptation
 
 	for _, a := range b.Adaptations {

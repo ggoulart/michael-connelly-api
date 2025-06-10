@@ -44,16 +44,16 @@ func TestController_Create(t *testing.T) {
 		},
 		{
 			name:    "when create book service is successful",
-			reqBody: `{"title": "The Black Echo", "year": 1992, "blurb": "a random blurb"}`,
+			reqBody: `{"title": "The Black Echo", "year": 1992, "blurb": "a random blurb", "adaptations": [{"description": "Bosch S03","imdb": "https://www.imdb.com/title/tt3502248/episodes/?season=3"}]}`,
 			setup: func(m *ManagerMock) {
-				reqBook := Book{Title: "The Black Echo", Year: 1992, Blurb: "a random blurb"}
-				respBook := Book{ID: "a-string", Title: "The Black Echo", Year: 1992, Blurb: "a random blurb"}
+				reqBook := Book{Title: "The Black Echo", Year: 1992, Blurb: "a random blurb", Adaptations: []Adaptation{{Description: "Bosch S03", IMDB: "https://www.imdb.com/title/tt3502248/episodes/?season=3"}}}
+				respBook := Book{ID: "a-string", Title: "The Black Echo", Year: 1992, Blurb: "a random blurb", Adaptations: []Adaptation{{Description: "Bosch S03", IMDB: "https://www.imdb.com/title/tt3502248/episodes/?season=3"}}}
 				m.On("Create", mock.Anything, reqBook).Return(respBook, nil).Once()
 			},
 			expected: func(r *httptest.ResponseRecorder, err error) {
 				assert.Nil(t, err)
 				assert.Equal(t, http.StatusCreated, r.Code)
-				assert.Equal(t, `{"id":"a-string","title":"The Black Echo","year":1992,"blurb":"a random blurb"}`, r.Body.String())
+				assert.Equal(t, `{"id":"a-string","title":"The Black Echo","year":1992,"blurb":"a random blurb","adaptations":[{"description":"Bosch S03","imdb":"https://www.imdb.com/title/tt3502248/episodes/?season=3"}]}`, r.Body.String())
 			},
 		},
 	}
