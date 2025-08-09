@@ -260,8 +260,53 @@ func TestClient_CreateTables(t *testing.T) {
 	}
 }
 
+func TestClient_Ping(t *testing.T) {
+	ctx := context.Background()
+	tests := []struct {
+		name    string
+		setup   func(*MockDynamoDBClient)
+		wantErr error
+	}{
+		{
+			name: "when failed to ping",
+			setup: func(c *MockDynamoDBClient) {
+				var limit int32 = 1
+				options := &dynamodb.ListTablesInput{Limit: &limit}
+				c.On("ListTables", ctx, options, mock.Anything).Return(&dynamodb.ListTablesOutput{}, assert.AnError).Once()
+			},
+			wantErr: fmt.Errorf("%w. failed to ping dynamodb: %w", ErrDynamodb, assert.AnError),
+		},
+		{
+			name: "when successfully ping",
+			setup: func(c *MockDynamoDBClient) {
+				var limit int32 = 1
+				options := &dynamodb.ListTablesInput{Limit: &limit}
+				c.On("ListTables", ctx, options, mock.Anything).Return(&dynamodb.ListTablesOutput{}, nil).Once()
+			},
+			wantErr: nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockDynamoDBClient := new(MockDynamoDBClient)
+			tt.setup(mockDynamoDBClient)
+			c := NewClient(mockDynamoDBClient, nil)
+
+			err := c.Ping(ctx)
+
+			assert.Equal(t, tt.wantErr, err)
+			mockDynamoDBClient.AssertExpectations(t)
+		})
+	}
+}
+
 type MockDynamoDBClient struct {
 	mock.Mock
+}
+
+func (m *MockDynamoDBClient) ListTables(ctx context.Context, params *dynamodb.ListTablesInput, optFns ...func(*dynamodb.Options)) (*dynamodb.ListTablesOutput, error) {
+	args := m.Called(ctx, params, optFns)
+	return args.Get(0).(*dynamodb.ListTablesOutput), args.Error(1)
 }
 
 func (m *MockDynamoDBClient) PutItem(ctx context.Context, params *dynamodb.PutItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.PutItemOutput, error) {

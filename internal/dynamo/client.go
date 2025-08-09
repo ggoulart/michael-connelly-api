@@ -21,6 +21,7 @@ type Dynamodb interface {
 	UpdateItem(ctx context.Context, input *dynamodb.UpdateItemInput, optFns ...func(*dynamodb.Options)) (*dynamodb.UpdateItemOutput, error)
 	TransactWriteItems(ctx context.Context, input *dynamodb.TransactWriteItemsInput, optFns ...func(*dynamodb.Options)) (*dynamodb.TransactWriteItemsOutput, error)
 	CreateTable(ctx context.Context, params *dynamodb.CreateTableInput, optFns ...func(*dynamodb.Options)) (*dynamodb.CreateTableOutput, error)
+	ListTables(ctx context.Context, params *dynamodb.ListTablesInput, optFns ...func(*dynamodb.Options)) (*dynamodb.ListTablesOutput, error)
 }
 
 var uniqueKeyTable = "unique_keys"
@@ -128,6 +129,16 @@ func (c *Client) CreateTables(ctx context.Context) error {
 			}
 			return fmt.Errorf("failed to create table %s: %w", tbl.Name, err)
 		}
+	}
+
+	return nil
+}
+
+func (c *Client) Ping(ctx context.Context) error {
+	var limit int32 = 1
+	_, err := c.dynamoDB.ListTables(ctx, &dynamodb.ListTablesInput{Limit: &limit})
+	if err != nil {
+		return fmt.Errorf("%w. failed to ping dynamodb: %w", ErrDynamodb, err)
 	}
 
 	return nil

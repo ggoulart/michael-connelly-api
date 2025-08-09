@@ -12,6 +12,7 @@ Content-Type: application/json
       "imdb": "https://www.imdb.com/name/nm0920038"
     }
   ],
+  "affiliations": ["LAPD"],
   "bookTitles": [
     "The Black Echo",
     "The Black Ice",
@@ -93,6 +94,7 @@ Content-Type: application/json
       "imdb":  "https://www.imdb.com/name/nm0702572"
     }
   ],
+  "affiliations": ["LAPD"],
   "bookTitles": [
     "The Late Show",
     "Dark Sacred Night",
@@ -143,6 +145,7 @@ Content-Type: application/json
       "imdb": "https://www.imdb.com/name/nm0002930"
     }
   ],
+  "affiliations": ["FBI"],
   "bookTitles": [
     "The Poet",
     "The Narrows",
@@ -168,6 +171,7 @@ Content-Type: application/json
       "imdb": "https://www.imdb.com/name/nm0000142"
     }
   ],
+  "affiliations": ["FBI"],
   "bookTitles": [
     "Blood Work",
     "A Darkness More Than Night",
@@ -210,6 +214,7 @@ Content-Type: application/json
       "imdb": "https://www.imdb.com/name/nm1020124"
     }
   ],
+  "affiliations": ["FBI"],
   "bookTitles": [
     "Nine Dragons",
     "The Narrows",
@@ -217,5 +222,128 @@ Content-Type: application/json
     "Angels Flight",
     "Trunk Music",
     "The Black Echo"
+  ]
+}
+
+### POST create Julia Brasher
+POST http://{{address}}/characters
+Content-Type: application/json
+
+{
+  "name": "Julia Brasher",
+  "actors": [
+    {
+      "name": "Annie Wersching",
+      "imdb": "https://www.imdb.com/name/nm1156709a"
+    }
+  ],
+  "affiliations": ["LAPD"],
+  "bookTitles": [
+    "City Of Bones"
+  ]
+}
+
+### POST create Gloria Dayton
+POST http://{{address}}/characters
+Content-Type: application/json
+
+{
+  "name": "Gloria Dayton",
+  "actors": [
+    {
+      "name": "Katherine Moennig",
+      "imdb": "https://www.imdb.com/name/nm0595485"
+    },
+    {
+      "name": "Fiona Rene",
+      "imdb": "https://www.imdb.com/name/nm2031749"
+    }
+  ],
+  "bookTitles": [
+    "The Gods of Guilt",
+    "The Lincoln Lawyer"
+  ]
+}
+
+### POST create Jerry Edgar
+POST http://{{address}}/characters
+Content-Type: application/json
+
+{
+  "name": "Jerry Edgar",
+  "actors": [
+    {
+      "name": "Gar Anthony Haywood",
+      "imdb": "https://www.imdb.com/name/nm0371831"
+    },
+    {
+      "name": "Jamie Hector",
+      "imdb": "https://www.imdb.com/name/nm0373100"
+    }
+  ],
+  "affiliations": ["LAPD"],
+  "bookTitles": [
+    "Dark Sacred Night",
+    "Two Kinds Of Truth",
+    "The Black Box",
+    "The Drop",
+    "The Overlook",
+    "Echo Park",
+    "The Closers",
+    "Lost Light",
+    "City Of Bones",
+    "A Darkness More Than Night",
+    "Trunk Music",
+    "The Last Coyote",
+    "The Concrete Blonde",
+    "The Black Ice",
+    "The Black Echo"
+  ]
+}
+
+### POST create Kiz Rider
+POST http://{{address}}/characters
+Content-Type: application/json
+
+{
+  "name": "Kiz Rider",
+  "actors": [
+    {
+      "name": "Rose Rollins",
+      "imdb": "https://www.imdb.com/name/nm0738452"
+    }
+  ],
+  "affiliations": ["LAPD"],
+  "bookTitles": [
+    "The Drop",
+    "Echo Park",
+    "The Closers",
+    "The Narrows",
+    "Lost Light",
+    "City Of Bones",
+    "A Darkness More Than Night",
+    "Angels Flight",
+    "Trunk Music"
+  ]
+}
+
+### POST create Frankie Sheehan
+POST http://{{address}}/characters
+Content-Type: application/json
+
+{
+  "name": "Frankie Sheehan",
+  "actors": [
+    {
+      "name": "Jamie McShane",
+      "imdb": "https://www.imdb.com/name/nm0574535/"
+    }
+  ],
+  "affiliations": ["LAPD"],
+  "bookTitles": [
+    "Two Kinds Of Truth",
+    "Angels Flight",
+    "The Concrete Blonde",
+    "The Black Ice"
   ]
 }

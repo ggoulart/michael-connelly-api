@@ -78,7 +78,8 @@ func dependencies() Dependencies {
 		log.Fatalf("failed create : %v", err)
 	}
 
-	healthController := health.NewController()
+	healthService := health.NewService(dynamodbClient)
+	healthController := health.NewController(healthService)
 
 	booksRepository := books.NewRepository(dynamodbClient, booksTable)
 	booksService := books.NewService(booksRepository)

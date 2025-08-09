@@ -1,15 +1,23 @@
 package health
 
 import (
+	"context"
+
 	"github.com/gin-gonic/gin"
 )
 
-type Controller struct{}
+type Manager interface {
+	Health(ctx context.Context) map[string]bool
+}
 
-func NewController() *Controller {
-	return &Controller{}
+type Controller struct {
+	manager Manager
+}
+
+func NewController(manager Manager) *Controller {
+	return &Controller{manager: manager}
 }
 
 func (c *Controller) Health(ctx *gin.Context) {
-	ctx.JSON(200, gin.H{"api": true})
+	ctx.JSON(200, c.manager.Health(ctx))
 }
