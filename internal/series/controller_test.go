@@ -81,6 +81,55 @@ func TestController_Create(t *testing.T) {
 	}
 }
 
+func TestController_GetAll(t *testing.T) {
+	tests := []struct {
+		name     string
+		setup    func(*ManagerMock)
+		expected func(*httptest.ResponseRecorder, error)
+	}{
+		{
+			name: "when failed to get all series",
+			setup: func(m *ManagerMock) {
+				m.On("GetAll", mock.Anything).Return([]Series{}, assert.AnError).Once()
+			},
+			expected: func(_ *httptest.ResponseRecorder, err error) {
+				assert.True(t, errors.Is(err, assert.AnError))
+			},
+		},
+		{
+			name: "when successful to get all series",
+			setup: func(m *ManagerMock) {
+				series := []Series{{ID: "the-harry-bosch-series-id", Title: "The Harry Bosch", Books: []BooksOrder{{Order: 1, Book: books.Book{ID: "the-black-echo-id", Title: "The Black Echo", Year: 1992, Blurb: "Blurb"}}}}}
+				m.On("GetAll", mock.Anything).Return(series, nil).Once()
+			},
+			expected: func(r *httptest.ResponseRecorder, err error) {
+				assert.Nil(t, err)
+				assert.Equal(t, http.StatusOK, r.Code)
+				assert.Equal(t, `[{"id":"the-harry-bosch-series-id","title":"The Harry Bosch","books":[{"id":"the-black-echo-id","title":"The Black Echo","order":1}]}]`, r.Body.String())
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			m := new(ManagerMock)
+			c := NewController(m)
+
+			recorder := httptest.NewRecorder()
+			ctx, _ := gin.CreateTestContext(recorder)
+			ctx.Request = httptest.NewRequest(http.MethodGet, "/series", nil)
+
+			tt.setup(m)
+
+			c.GetAll(ctx)
+
+			ctx.Writer.WriteHeaderNow()
+
+			tt.expected(recorder, ctx.Errors.Last())
+			m.AssertExpectations(t)
+		})
+	}
+}
+
 type ManagerMock struct {
 	Manager
 	mock.Mock
@@ -89,4 +138,9 @@ type ManagerMock struct {
 func (m *ManagerMock) Create(ctx context.Context, series Series, booksOrderList []BooksOrder) (Series, error) {
 	args := m.Called(ctx, series, booksOrderList)
 	return args.Get(0).(Series), args.Error(1)
+}
+
+func (m *ManagerMock) GetAll(ctx context.Context) ([]Series, error) {
+	args := m.Called(ctx)
+	return args.Get(0).([]Series), args.Error(1)
 }

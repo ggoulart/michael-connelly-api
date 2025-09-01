@@ -161,6 +161,65 @@ func TestRepository_GetByTitle(t *testing.T) {
 	}
 }
 
+func TestRepository_GetAll(t *testing.T) {
+	ctx := context.Background()
+	tests := []struct {
+		name    string
+		setup   func(*MockDynamoDBClient)
+		want    []Series
+		wantErr error
+	}{
+		{
+			name: "when failed to get all series",
+			setup: func(m *MockDynamoDBClient) {
+				m.On("GetAll", ctx, "series-table").Return([]map[string]types.AttributeValue(nil), assert.AnError).Once()
+			},
+			want:    []Series{},
+			wantErr: assert.AnError,
+		},
+		{
+			name: "when failed to unmarshal series",
+			setup: func(m *MockDynamoDBClient) {
+				output := map[string]types.AttributeValue{"title": &types.AttributeValueMemberM{Value: map[string]types.AttributeValue{}}}
+				m.On("GetAll", ctx, "series-table").Return([]map[string]types.AttributeValue{output}, nil).Once()
+			},
+			want:    []Series{},
+			wantErr: fmt.Errorf("failed to unmarshal series: %w", &attributevalue.UnmarshalTypeError{Value: "map", Type: reflect.TypeOf("string")}),
+		},
+		{
+			name: "when no series in DB",
+			setup: func(m *MockDynamoDBClient) {
+				m.On("GetAll", ctx, "series-table").Return([]map[string]types.AttributeValue{}, nil).Once()
+			},
+			want: []Series(nil),
+		},
+		{
+			name: "when sucessfull get all series",
+			setup: func(m *MockDynamoDBClient) {
+				series1 := map[string]types.AttributeValue{"id": &types.AttributeValueMemberS{Value: "1"}, "title": &types.AttributeValueMemberS{Value: "Series One"}}
+				series2 := map[string]types.AttributeValue{"id": &types.AttributeValueMemberS{Value: "2"}, "title": &types.AttributeValueMemberS{Value: "Series Two"}}
+				output := []map[string]types.AttributeValue{series1, series2}
+				m.On("GetAll", ctx, "series-table").Return(output, nil).Once()
+			},
+			want: []Series{{ID: "1", Title: "Series One"}, {ID: "2", Title: "Series Two"}},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockDynamoDBClient := new(MockDynamoDBClient)
+			tt.setup(mockDynamoDBClient)
+
+			r := NewRepository(mockDynamoDBClient, "series-table")
+
+			got, err := r.GetAll(ctx)
+
+			assert.Equal(t, tt.want, got)
+			assert.Equal(t, tt.wantErr, err)
+			mockDynamoDBClient.AssertExpectations(t)
+		})
+	}
+}
+
 type MockDynamoDBClient struct {
 	DynamoDBClient
 	mock.Mock
@@ -174,4 +233,9 @@ func (m *MockDynamoDBClient) Save(ctx context.Context, tableName string, item ma
 func (m *MockDynamoDBClient) GetByUniqueKey(ctx context.Context, tableName string, value string) (map[string]types.AttributeValue, error) {
 	args := m.Called(ctx, tableName, value)
 	return args.Get(0).(map[string]types.AttributeValue), args.Error(1)
+}
+
+func (m *MockDynamoDBClient) GetAll(ctx context.Context, tableName string) ([]map[string]types.AttributeValue, error) {
+	args := m.Called(ctx, tableName)
+	return args.Get(0).([]map[string]types.AttributeValue), args.Error(1)
 }
