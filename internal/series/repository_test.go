@@ -162,6 +162,7 @@ func TestRepository_GetByTitle(t *testing.T) {
 }
 
 type MockDynamoDBClient struct {
+	DynamoDBClient
 	mock.Mock
 }
 

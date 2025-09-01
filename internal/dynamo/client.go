@@ -22,6 +22,7 @@ type Dynamodb interface {
 	TransactWriteItems(ctx context.Context, input *dynamodb.TransactWriteItemsInput, optFns ...func(*dynamodb.Options)) (*dynamodb.TransactWriteItemsOutput, error)
 	CreateTable(ctx context.Context, params *dynamodb.CreateTableInput, optFns ...func(*dynamodb.Options)) (*dynamodb.CreateTableOutput, error)
 	ListTables(ctx context.Context, params *dynamodb.ListTablesInput, optFns ...func(*dynamodb.Options)) (*dynamodb.ListTablesOutput, error)
+	Scan(ctx context.Context, input *dynamodb.ScanInput, optFns ...func(*dynamodb.Options)) (*dynamodb.ScanOutput, error)
 }
 
 var uniqueKeyTable = "unique_keys"
@@ -101,6 +102,17 @@ func (c *Client) GetByUniqueKey(ctx context.Context, tableName string, value str
 	}
 
 	return item, nil
+}
+
+func (c *Client) GetAll(ctx context.Context, tableName string) ([]map[string]types.AttributeValue, error) {
+	output, err := c.dynamoDB.Scan(ctx, &dynamodb.ScanInput{
+		TableName: aws.String(tableName),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("%w. failed to scan books: %w", ErrDynamodb, err)
+	}
+	
+	return output.Items, nil
 }
 
 func (c *Client) CreateTables(ctx context.Context) error {

@@ -200,7 +200,56 @@ func TestRepository_GetByTitle(t *testing.T) {
 	}
 }
 
+func TestRepository_GetAll(t *testing.T) {
+	ctx := context.Background()
+	tests := []struct {
+		name    string
+		setup   func(*MockDynamoDBClient)
+		want    []Book
+		wantErr error
+	}{
+		{
+			name: "when failed to get all books",
+			setup: func(m *MockDynamoDBClient) {
+				m.On("GetAll", ctx, "table-name").Return([]map[string]types.AttributeValue{}, assert.AnError).Once()
+			},
+			want:    []Book{},
+			wantErr: assert.AnError,
+		},
+		{
+			name: "when failed to unmarshal book",
+			setup: func(m *MockDynamoDBClient) {
+				output := []map[string]types.AttributeValue{{"title": &types.AttributeValueMemberM{Value: map[string]types.AttributeValue{}}}}
+				m.On("GetAll", ctx, "table-name").Return(output, nil).Once()
+			},
+			want:    []Book{},
+			wantErr: fmt.Errorf("failed to unmarshal book: %w", &attributevalue.UnmarshalTypeError{Value: "map", Type: reflect.TypeOf("string")}),
+		},
+		{
+			name: "when successfully get all books",
+			setup: func(m *MockDynamoDBClient) {
+				output := []map[string]types.AttributeValue{{"title": &types.AttributeValueMemberS{Value: "The Black Echo"}}}
+				m.On("GetAll", ctx, "table-name").Return(output, nil).Once()
+			},
+			want: []Book{{Title: "The Black Echo"}},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockDynamoDBClient := new(MockDynamoDBClient)
+			tt.setup(mockDynamoDBClient)
+
+			r := NewRepository(mockDynamoDBClient, "table-name")
+			got, err := r.GetAll(ctx)
+
+			assert.Equal(t, tt.want, got)
+			assert.Equal(t, tt.wantErr, err)
+		})
+	}
+}
+
 type MockDynamoDBClient struct {
+	DynamoDBClient
 	mock.Mock
 }
 
@@ -217,4 +266,9 @@ func (m *MockDynamoDBClient) GetByID(ctx context.Context, tableName string, id s
 func (m *MockDynamoDBClient) GetByUniqueKey(ctx context.Context, tableName string, value string) (map[string]types.AttributeValue, error) {
 	args := m.Called(ctx, tableName, value)
 	return args.Get(0).(map[string]types.AttributeValue), args.Error(1)
+}
+
+func (m *MockDynamoDBClient) GetAll(ctx context.Context, tableName string) ([]map[string]types.AttributeValue, error) {
+	args := m.Called(ctx, tableName)
+	return args.Get(0).([]map[string]types.AttributeValue), args.Error(1)
 }

@@ -6,6 +6,7 @@ type StorageBook interface {
 	Save(ctx context.Context, book Book) (Book, error)
 	GetById(ctx context.Context, bookID string) (Book, error)
 	GetByTitle(ctx context.Context, bookTitle string) (Book, error)
+	GetAll(ctx context.Context) ([]Book, error)
 }
 
 type Service struct {
@@ -41,4 +42,13 @@ func (s *Service) GetByTitle(ctx context.Context, bookTitle string) (Book, error
 	}
 
 	return book, nil
+}
+
+func (s *Service) GetAll(ctx context.Context) ([]Book, error) {
+	books, err := s.storageBook.GetAll(ctx)
+	if err != nil {
+		return []Book{}, err
+	}
+
+	return books, nil
 }

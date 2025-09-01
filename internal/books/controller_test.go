@@ -137,7 +137,61 @@ func TestController_GetById(t *testing.T) {
 	}
 }
 
+func TestController_GetAll(t *testing.T) {
+	tests := []struct {
+		name     string
+		setup    func(*ManagerMock, *gin.Context)
+		expected func(*httptest.ResponseRecorder, error)
+	}{
+		{
+			name: "when get all books service fails",
+			setup: func(m *ManagerMock, ctx *gin.Context) {
+				m.On("GetAll", mock.Anything).Return([]Book{}, assert.AnError).Once()
+			},
+			expected: func(_ *httptest.ResponseRecorder, err error) {
+				assert.True(t, errors.Is(err, assert.AnError))
+			},
+		},
+		{
+			name: "when get all books service is successful",
+			setup: func(m *ManagerMock, ctx *gin.Context) {
+				respBooks := []Book{
+					{ID: "123", Title: "The Black Echo", Year: 1992, Blurb: "a random blurb"},
+					{ID: "456", Title: "The Black Ice", Year: 1993, Blurb: "a random blurb"},
+					{ID: "789", Title: "The Concrete Blonde", Year: 1994, Blurb: "a random blurb"},
+				}
+				m.On("GetAll", mock.Anything).Return(respBooks, nil).Once()
+			},
+			expected: func(r *httptest.ResponseRecorder, err error) {
+				assert.Nil(t, err)
+				assert.Equal(t, http.StatusOK, r.Code)
+				assert.Equal(t, `[{"id":"123","title":"The Black Echo","year":1992,"blurb":"a random blurb"},{"id":"456","title":"The Black Ice","year":1993,"blurb":"a random blurb"},{"id":"789","title":"The Concrete Blonde","year":1994,"blurb":"a random blurb"}]`, r.Body.String())
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			m := new(ManagerMock)
+			c := NewController(m)
+
+			recorder := httptest.NewRecorder()
+			ctx, _ := gin.CreateTestContext(recorder)
+			ctx.Request = httptest.NewRequest(http.MethodGet, "/books", nil)
+
+			tt.setup(m, ctx)
+
+			c.GetAll(ctx)
+
+			ctx.Writer.WriteHeaderNow()
+
+			tt.expected(recorder, ctx.Errors.Last())
+			m.AssertExpectations(t)
+		})
+	}
+}
+
 type ManagerMock struct {
+	Manager
 	mock.Mock
 }
 
@@ -149,4 +203,9 @@ func (m *ManagerMock) Create(ctx context.Context, book Book) (Book, error) {
 func (m *ManagerMock) GetById(ctx context.Context, bookID string) (Book, error) {
 	args := m.Called(ctx, bookID)
 	return args.Get(0).(Book), args.Error(1)
+}
+
+func (m *ManagerMock) GetAll(ctx context.Context) ([]Book, error) {
+	args := m.Called(ctx)
+	return args.Get(0).([]Book), args.Error(1)
 }

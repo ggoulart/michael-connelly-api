@@ -35,15 +35,17 @@ func NewRouter() *gin.Engine {
 	r.GET("/health", d.HealthController.Health)
 
 	book := r.Group("/books")
-	book.POST("", d.BooksController.Create)
-	book.GET("/:bookID", d.BooksController.GetById)
+	book.POST("", middleware.Admin(), d.BooksController.Create)
+	book.GET("", middleware.RateLimit(), d.BooksController.GetAll)
+	book.GET("/:bookID", middleware.RateLimit(), d.BooksController.GetById)
 
 	character := r.Group("/characters")
-	character.POST("", d.CharactersController.Create)
-	character.GET("/:character", d.CharactersController.GetBy)
+	character.POST("", middleware.Admin(), d.CharactersController.Create)
+	character.GET("/:character", middleware.RateLimit(), d.CharactersController.GetBy)
 
 	series := r.Group("/series")
-	series.POST("", d.SeriesController.Create)
+	series.POST("", middleware.Admin(), d.SeriesController.Create)
+	series.GET("", middleware.RateLimit(), d.SeriesController.GetAll)
 
 	return r
 }

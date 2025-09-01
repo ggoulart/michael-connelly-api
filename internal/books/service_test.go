@@ -126,7 +126,47 @@ func TestService_GetByTitle(t *testing.T) {
 	}
 }
 
+func TestService_GetAll(t *testing.T) {
+	ctx := context.Background()
+	tests := []struct {
+		name    string
+		setup   func(s *StorageMock)
+		want    []Book
+		wantErr error
+	}{
+		{
+			name: "failed to get all books",
+			setup: func(s *StorageMock) {
+				s.On("GetAll", ctx).Return([]Book{}, assert.AnError)
+			},
+			want:    []Book{},
+			wantErr: assert.AnError,
+		},
+		{
+			name: "successfully get all books",
+			setup: func(s *StorageMock) {
+				s.On("GetAll", ctx).Return([]Book{{Title: "The Black Echo"}}, nil)
+			},
+			want: []Book{{Title: "The Black Echo"}},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			storage := new(StorageMock)
+			tt.setup(storage)
+
+			s := NewService(storage)
+
+			got, err := s.GetAll(ctx)
+
+			assert.Equal(t, got, tt.want)
+			assert.Equal(t, tt.wantErr, err)
+		})
+	}
+}
+
 type StorageMock struct {
+	StorageBook
 	mock.Mock
 }
 
@@ -143,4 +183,9 @@ func (s *StorageMock) GetById(ctx context.Context, bookID string) (Book, error) 
 func (s *StorageMock) GetByTitle(ctx context.Context, bookTitle string) (Book, error) {
 	args := s.Called(ctx, bookTitle)
 	return args.Get(0).(Book), args.Error(1)
+}
+
+func (s *StorageMock) GetAll(ctx context.Context) ([]Book, error) {
+	args := s.Called(ctx)
+	return args.Get(0).([]Book), args.Error(1)
 }

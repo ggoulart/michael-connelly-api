@@ -63,7 +63,60 @@ func TestService_Create(t *testing.T) {
 	}
 }
 
+func TestService_GetAll(t *testing.T) {
+	ctx := context.Background()
+	tests := []struct {
+		name    string
+		setup   func(*StorageSeriesMock, *StorageBookMock)
+		want    []Series
+		wantErr error
+	}{
+		{
+			name: "when failed to get all series",
+			setup: func(s *StorageSeriesMock, _ *StorageBookMock) {
+				s.On("GetAll", ctx).Return([]Series{}, assert.AnError)
+			},
+			want:    []Series{},
+			wantErr: assert.AnError,
+		},
+		{
+			name: "when failed to get book by id",
+			setup: func(s *StorageSeriesMock, b *StorageBookMock) {
+				s.On("GetAll", ctx).Return([]Series{{Title: "Bosch", Books: []BooksOrder{{Order: 1, Book: books.Book{ID: "123"}}}}}, nil)
+				b.On("GetById", ctx, "123").Return(books.Book{}, assert.AnError)
+			},
+			want:    []Series{},
+			wantErr: assert.AnError,
+		},
+		{
+			name: "when successful to get all series",
+			setup: func(s *StorageSeriesMock, b *StorageBookMock) {
+				s.On("GetAll", ctx).Return([]Series{{Title: "Bosch", Books: []BooksOrder{{Order: 1, Book: books.Book{ID: "123"}}}}}, nil)
+				b.On("GetById", ctx, "123").Return(books.Book{ID: "123", Title: "The Black Echo", Year: 0}, nil)
+			},
+			want: []Series{{Title: "Bosch", Books: []BooksOrder{{Order: 1, Book: books.Book{ID: "123", Title: "The Black Echo"}}}}},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			storageSeries := new(StorageSeriesMock)
+			storageBook := new(StorageBookMock)
+			tt.setup(storageSeries, storageBook)
+
+			s := NewService(storageSeries, storageBook)
+
+			got, err := s.GetAll(ctx)
+
+			assert.Equal(t, tt.want, got)
+			assert.Equal(t, tt.wantErr, err)
+			storageSeries.AssertExpectations(t)
+			storageBook.AssertExpectations(t)
+		})
+	}
+}
+
 type StorageSeriesMock struct {
+	StorageSeries
 	mock.Mock
 }
 
@@ -77,11 +130,22 @@ func (s *StorageSeriesMock) GetByTitle(ctx context.Context, title string) (Serie
 	return args.Get(0).(Series), args.Error(1)
 }
 
+func (s *StorageSeriesMock) GetAll(ctx context.Context) ([]Series, error) {
+	args := s.Called(ctx)
+	return args.Get(0).([]Series), args.Error(1)
+}
+
 type StorageBookMock struct {
+	StorageBook
 	mock.Mock
 }
 
 func (s *StorageBookMock) GetByTitle(ctx context.Context, bookTitle string) (books.Book, error) {
 	args := s.Called(ctx, bookTitle)
+	return args.Get(0).(books.Book), args.Error(1)
+}
+
+func (s *StorageBookMock) GetById(ctx context.Context, bookID string) (books.Book, error) {
+	args := s.Called(ctx, bookID)
 	return args.Get(0).(books.Book), args.Error(1)
 }

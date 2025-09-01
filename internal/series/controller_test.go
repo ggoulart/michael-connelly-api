@@ -33,7 +33,7 @@ func TestController_Create(t *testing.T) {
 		},
 		{
 			name:    "when create series service fails",
-			reqBody: `{"title":"The Harry Bosch", "books":[{"bookTitle":"The Black Echo", "order": 1}]}`,
+			reqBody: `{"title":"The Harry Bosch", "books":[{"title":"The Black Echo", "order": 1}]}`,
 			setup: func(m *ManagerMock) {
 				reqSeries := Series{Title: "The Harry Bosch"}
 				reqOrder := []BooksOrder{{Order: 1, Book: books.Book{Title: "The Black Echo"}}}
@@ -45,7 +45,7 @@ func TestController_Create(t *testing.T) {
 		},
 		{
 			name:    "when create series is successful",
-			reqBody: `{"title":"The Harry Bosch", "books":[{"bookTitle":"The Black Echo", "order": 1}]}`,
+			reqBody: `{"title":"The Harry Bosch", "books":[{"title":"The Black Echo", "order": 1}]}`,
 			setup: func(m *ManagerMock) {
 				reqSeries := Series{Title: "The Harry Bosch"}
 				reqOrder := []BooksOrder{{Order: 1, Book: books.Book{Title: "The Black Echo"}}}
@@ -56,7 +56,7 @@ func TestController_Create(t *testing.T) {
 			expected: func(r *httptest.ResponseRecorder, err error) {
 				assert.Nil(t, err)
 				assert.Equal(t, http.StatusCreated, r.Code)
-				assert.Equal(t, `{"id":"the-harry-bosch-series-id","title":"The Harry Bosch","books":[{"bookTitle":"The Black Echo","order":1}]}`, r.Body.String())
+				assert.Equal(t, `{"id":"the-harry-bosch-series-id","title":"The Harry Bosch","books":[{"id":"the-black-echo-book-id","title":"The Black Echo","order":1}]}`, r.Body.String())
 			},
 		},
 	}
@@ -82,6 +82,7 @@ func TestController_Create(t *testing.T) {
 }
 
 type ManagerMock struct {
+	Manager
 	mock.Mock
 }
 

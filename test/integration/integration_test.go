@@ -54,6 +54,7 @@ func TestIntegration(t *testing.T) {
 			r := router.NewRouter()
 
 			req := httptest.NewRequest(tt.httpMethod, tt.targetURL, strings.NewReader(tt.body))
+			req.Header.Set("Authorization", "Bearer meu_token_secreto")
 			w := httptest.NewRecorder()
 
 			r.ServeHTTP(w, req)

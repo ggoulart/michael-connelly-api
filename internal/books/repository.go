@@ -14,6 +14,7 @@ type DynamoDBClient interface {
 	Save(ctx context.Context, tableName string, item map[string]types.AttributeValue, uniqueKey string) (string, error)
 	GetByID(ctx context.Context, tableName string, id string) (map[string]types.AttributeValue, error)
 	GetByUniqueKey(ctx context.Context, tableName string, value string) (map[string]types.AttributeValue, error)
+	GetAll(ctx context.Context, tableName string) ([]map[string]types.AttributeValue, error)
 }
 
 type Repository struct {
@@ -84,6 +85,26 @@ func (r *Repository) GetBookListByTitles(ctx context.Context, bookTitles []strin
 		}
 
 		booksList = append(booksList, book)
+	}
+
+	return booksList, nil
+}
+
+func (r *Repository) GetAll(ctx context.Context) ([]Book, error) {
+	items, err := r.dynamoDBClient.GetAll(ctx, r.tableName)
+	if err != nil {
+		return []Book{}, err
+	}
+
+	var booksList []Book
+	for _, item := range items {
+		var dbBook DBBook
+		err = attributevalue.UnmarshalMap(item, &dbBook)
+		if err != nil {
+			return []Book{}, fmt.Errorf("failed to unmarshal book: %w", err)
+		}
+
+		booksList = append(booksList, dbBook.toBook())
 	}
 
 	return booksList, nil

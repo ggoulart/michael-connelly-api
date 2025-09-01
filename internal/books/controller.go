@@ -3,6 +3,7 @@ package books
 import (
 	"context"
 	"net/http"
+	"sort"
 
 	"github.com/gin-gonic/gin"
 )
@@ -10,6 +11,7 @@ import (
 type Manager interface {
 	Create(ctx context.Context, book Book) (Book, error)
 	GetById(ctx context.Context, bookID string) (Book, error)
+	GetAll(ctx context.Context) ([]Book, error)
 }
 
 type Controller struct {
@@ -50,6 +52,25 @@ func (c *Controller) GetById(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, NewBookDTO(book))
+}
+
+func (c *Controller) GetAll(ctx *gin.Context) {
+	books, err := c.manager.GetAll(ctx)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	sort.Slice(books, func(i, j int) bool {
+		return books[i].Year < books[j].Year
+	})
+
+	var booksDTO []BookDTO
+	for _, book := range books {
+		booksDTO = append(booksDTO, NewBookDTO(book))
+	}
+
+	ctx.JSON(http.StatusOK, booksDTO)
 }
 
 type BookDTO struct {

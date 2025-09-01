@@ -9,9 +9,11 @@ import (
 type StorageSeries interface {
 	Save(ctx context.Context, series Series) (Series, error)
 	GetByTitle(ctx context.Context, title string) (Series, error)
+	GetAll(ctx context.Context) ([]Series, error)
 }
 
 type StorageBook interface {
+	GetById(ctx context.Context, bookID string) (books.Book, error)
 	GetByTitle(ctx context.Context, bookTitle string) (books.Book, error)
 }
 
@@ -43,4 +45,24 @@ func (s *Service) Create(ctx context.Context, series Series, booksOrderList []Bo
 	}
 
 	return savedSeries, nil
+}
+
+func (s *Service) GetAll(ctx context.Context) ([]Series, error) {
+	seriesList, err := s.storageSeries.GetAll(ctx)
+	if err != nil {
+		return []Series{}, err
+	}
+
+	for _, series := range seriesList {
+		for i := range series.Books {
+			book, err := s.storageBook.GetById(ctx, series.Books[i].ID)
+			if err != nil {
+				return []Series{}, err
+			}
+
+			series.Books[i].Book = book
+		}
+	}
+
+	return seriesList, nil
 }

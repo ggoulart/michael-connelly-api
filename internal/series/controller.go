@@ -10,6 +10,7 @@ import (
 
 type Manager interface {
 	Create(ctx context.Context, series Series, booksOrderList []BooksOrder) (Series, error)
+	GetAll(ctx context.Context) ([]Series, error)
 }
 
 type Controller struct {
@@ -36,6 +37,22 @@ func (c *Controller) Create(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, NewSeriesDTO(createdSeries))
 }
 
+func (c *Controller) GetAll(ctx *gin.Context) {
+	series, err := c.manager.GetAll(ctx)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+
+	var seriesDTO []SeriesDTO
+	for _, s := range series {
+		seriesDTO = append(seriesDTO, NewSeriesDTO(s))
+	}
+
+	ctx.JSON(http.StatusOK, seriesDTO)
+
+}
+
 type SeriesDTO struct {
 	ID    string          `json:"id"`
 	Title string          `json:"title" binding:"required"`
@@ -43,7 +60,8 @@ type SeriesDTO struct {
 }
 
 type BooksOrderDTO struct {
-	BookTitle string `json:"bookTitle" binding:"required"`
+	ID        string `json:"id,omitempty"`
+	BookTitle string `json:"title" binding:"required"`
 	Order     int    `json:"order" binding:"required"`
 }
 
@@ -51,6 +69,7 @@ func NewSeriesDTO(series Series) SeriesDTO {
 	var bookTitles []BooksOrderDTO
 	for _, b := range series.Books {
 		bookTitles = append(bookTitles, BooksOrderDTO{
+			ID:        b.Book.ID,
 			BookTitle: b.Book.Title,
 			Order:     b.Order,
 		})

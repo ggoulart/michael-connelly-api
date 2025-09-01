@@ -14,6 +14,7 @@ import (
 type DynamoDBClient interface {
 	Save(ctx context.Context, tableName string, item map[string]types.AttributeValue, uniqueKey string) (string, error)
 	GetByUniqueKey(ctx context.Context, tableName string, value string) (map[string]types.AttributeValue, error)
+	GetAll(ctx context.Context, tableName string) ([]map[string]types.AttributeValue, error)
 }
 
 type Repository struct {
@@ -57,6 +58,26 @@ func (r *Repository) GetByTitle(ctx context.Context, title string) (Series, erro
 	}
 
 	return dbSeries.ToSeries(), nil
+}
+
+func (r *Repository) GetAll(ctx context.Context) ([]Series, error) {
+	items, err := r.dynamoDBClient.GetAll(ctx, r.tableName)
+	if err != nil {
+		return []Series{}, err
+	}
+
+	var seriesList []Series
+	for _, item := range items {
+		var dbSeries DBSeries
+		err = attributevalue.UnmarshalMap(item, &dbSeries)
+		if err != nil {
+			return []Series{}, fmt.Errorf("failed to unmarshal series: %w", err)
+		}
+
+		seriesList = append(seriesList, dbSeries.ToSeries())
+	}
+
+	return seriesList, nil
 }
 
 type DBSeries struct {

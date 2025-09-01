@@ -300,7 +300,49 @@ func TestClient_Ping(t *testing.T) {
 	}
 }
 
+func TestClient_GetAll(t *testing.T) {
+	ctx := context.Background()
+	tests := []struct {
+		name    string
+		setup   func(*MockDynamoDBClient)
+		want    []map[string]types.AttributeValue
+		wantErr error
+	}{
+		{
+			name: "when failed to Scan",
+			setup: func(m *MockDynamoDBClient) {
+				input := &dynamodb.ScanInput{TableName: aws.String("table-name")}
+				m.On("Scan", ctx, input, mock.Anything).Return(&dynamodb.ScanOutput{}, assert.AnError).Once()
+			},
+			wantErr: fmt.Errorf("%w. failed to scan books: %w", ErrDynamodb, assert.AnError),
+		},
+		{
+			name: "when successfully Scan",
+			setup: func(m *MockDynamoDBClient) {
+				input := &dynamodb.ScanInput{TableName: aws.String("table-name")}
+				output := &dynamodb.ScanOutput{Items: []map[string]types.AttributeValue{{"title": &types.AttributeValueMemberS{Value: "The Black Echo"}}}}
+				m.On("Scan", ctx, input, mock.Anything).Return(output, nil).Once()
+			},
+			want: []map[string]types.AttributeValue{{"title": &types.AttributeValueMemberS{Value: "The Black Echo"}}},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockDynamoDBClient := new(MockDynamoDBClient)
+			tt.setup(mockDynamoDBClient)
+			c := NewClient(mockDynamoDBClient, nil)
+
+			got, err := c.GetAll(ctx, "table-name")
+
+			assert.Equal(t, tt.want, got)
+			assert.Equal(t, tt.wantErr, err)
+			mockDynamoDBClient.AssertExpectations(t)
+		})
+	}
+}
+
 type MockDynamoDBClient struct {
+	Dynamodb
 	mock.Mock
 }
 
@@ -337,4 +379,9 @@ func (m *MockDynamoDBClient) TransactWriteItems(ctx context.Context, params *dyn
 func (m *MockDynamoDBClient) CreateTable(ctx context.Context, params *dynamodb.CreateTableInput, optFns ...func(*dynamodb.Options)) (*dynamodb.CreateTableOutput, error) {
 	args := m.Called(ctx, params, optFns)
 	return args.Get(0).(*dynamodb.CreateTableOutput), args.Error(1)
+}
+
+func (m *MockDynamoDBClient) Scan(ctx context.Context, input *dynamodb.ScanInput, optFns ...func(*dynamodb.Options)) (*dynamodb.ScanOutput, error) {
+	args := m.Called(ctx, input, optFns)
+	return args.Get(0).(*dynamodb.ScanOutput), args.Error(1)
 }
